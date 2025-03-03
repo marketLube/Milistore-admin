@@ -159,7 +159,7 @@ function Orders() {
               }}
             >
               <div className="py-1" role="menu">
-                {options.map((status) => (
+                {options?.map((status) => (
                   <button
                     key={status}
                     onClick={() => handleStatusClick(status)}
@@ -214,7 +214,7 @@ function Orders() {
 
     // Function to format products display
     const formatProducts = (products) => {
-      return products.map((product, index) => (
+      return products?.map((product, index) => (
         <div
           key={product._id}
           className={index !== 0 ? "mt-2 pt-2 border-t" : ""}
@@ -248,7 +248,7 @@ function Orders() {
         <td className="px-6 py-4">
           <div className="space-y-1">
             {[
-              ...new Set(order.products.map((p) => p.productId.category.name)),
+              ...new Set(order.products?.map((p) => p.productId.category.name)),
             ].join(", ")}
           </div>
         </td>
@@ -292,7 +292,7 @@ function Orders() {
         </div>
 
         <div className="flex gap-2 items-center">
-          {AnalysisData.map((d) => (
+          {AnalysisData?.map((d) => (
             <Ordercards data={d.data} count={d.count} />
           ))}
         </div>
@@ -324,7 +324,7 @@ function Orders() {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order) => (
+            {orders?.map((order) => (
               <TableRow order={order} />
             ))}
           </tbody>
