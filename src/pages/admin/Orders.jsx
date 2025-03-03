@@ -402,14 +402,14 @@ function Orders() {
   };
 
   return (
-    <div className="h-[calc(100vh-200px)]">
+    <div>
       <PageHeader content={"Orders"} />
 
       {isLoading ? (
         <LoadingSpinner color="primary" text="Loading orders..." />
       ) : (
         <>
-          <div className="flex">
+          <div className="flex gap-[3rem]">
             <div className="w-1/3 space-y-2">
               <p className="font-medium text-sm">Sales Period</p>
               <div className="w-full">
@@ -446,7 +446,7 @@ function Orders() {
               </div>
             </div>
 
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-2 items-center flex-wrap">
               {orderStats && (
                 <>
                   <Ordercards

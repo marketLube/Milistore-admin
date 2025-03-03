@@ -36,10 +36,10 @@ function Customers() {
   };
 
   return (
-    <div className="flex flex-col  bg-gray-100 h-[calc(100vh-200px)]">
+    <div className="flex flex-col  bg-gray-100 ">
       <PageHeader content={"Customers"} />
 
-      <div className="flex flex-col  m-4">
+      <div className="flex flex-col m-4">
         <div className="relative overflow-hidden shadow-md sm:rounded-lg flex flex-col flex-1 bg-white">
           <div className="flex items-center justify-between flex-wrap md:flex-row p-4 border-b">
             <div>

@@ -174,6 +174,19 @@ function Addproduct() {
   };
 
   const handlePublish = async () => {
+    // Check if variants are required but none are added
+    if (
+      selectedVariant === "hasVariants" &&
+      productData.variants.length === 0
+    ) {
+      toast.error("Please add at least one variant before publishing");
+      setErrors((prev) => ({
+        ...prev,
+        variants: "At least one variant is required",
+      }));
+      return;
+    }
+
     // Pass images as third argument to validateProduct
     const validationErrors = validateProduct(
       productData,
