@@ -29,48 +29,50 @@ function Orders() {
     "delivered",
     "cancelled",
     "refunded",
-    "on-refound",
+    "onrefound",
   ];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const [startDate, endDate] = dateRange;
+  // Move fetchData outside of useEffect so it can be reused
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const [startDate, endDate] = dateRange;
 
-        let queryParams = [];
+      let queryParams = [];
 
-        if (startDate && endDate) {
-          queryParams.push(`startDate=${startDate.toISOString()}`);
-          queryParams.push(`endDate=${endDate.toISOString()}`);
-        }
-
-        if (selectedCategory) {
-          queryParams.push(`category=${selectedCategory}`);
-        }
-
-        if (selectedStatus) {
-          queryParams.push(`status=${selectedStatus.toLowerCase()}`);
-        }
-
-        const queryString =
-          queryParams.length > 0 ? `?${queryParams.join("&")}` : "";
-
-        const [ordersRes, statsRes] = await Promise.all([
-          getOrders(queryString),
-          getOrderStats(),
-        ]);
-        setOrders(ordersRes.orders);
-        setOrderStats(statsRes.stats);
-        setErrorMessage("");
-      } catch (err) {
-        setOrders([]);
-        setErrorMessage(err.response?.data?.message || "No orders found");
-      } finally {
-        setIsLoading(false);
+      if (startDate && endDate) {
+        queryParams.push(`startDate=${startDate.toISOString()}`);
+        queryParams.push(`endDate=${endDate.toISOString()}`);
       }
-    };
 
+      if (selectedCategory) {
+        queryParams.push(`category=${selectedCategory}`);
+      }
+
+      if (selectedStatus) {
+        queryParams.push(`status=${selectedStatus.toLowerCase()}`);
+      }
+
+      const queryString =
+        queryParams.length > 0 ? `?${queryParams.join("&")}` : "";
+
+      const [ordersRes, statsRes] = await Promise.all([
+        getOrders(queryString),
+        getOrderStats(),
+      ]);
+      setOrders(ordersRes.orders);
+      setOrderStats(statsRes.stats);
+      setErrorMessage("");
+    } catch (err) {
+      setOrders([]);
+      setErrorMessage(err.response?.data?.message || "No orders found");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Update useEffect to use the new fetchData function
+  useEffect(() => {
     fetchData();
   }, [dateRange, selectedCategory, selectedStatus]);
 
@@ -179,10 +181,10 @@ function Orders() {
         delivered: "Delivered",
         cancelled: "Cancelled",
         refunded: "Refunded",
-        "on-refound": "On Refund",
+        onrefound: "On Refund",
         paid: "Paid",
         failed: "Failed",
-        "on-refund": "On Refund",
+        onrefund: "On Refund",
       };
       return displayFormats[status] || status;
     };
@@ -282,7 +284,7 @@ function Orders() {
       "paid",
       "failed",
       "refunded",
-      "on-refund",
+      "onrefund",
     ];
     const orderOptions = [
       "pending",
@@ -291,7 +293,7 @@ function Orders() {
       "delivered",
       "cancelled",
       "refunded",
-      "on-refound",
+      "onrefund",
     ];
 
     const handlePaymentStatusChange = async (newStatus) => {
@@ -300,6 +302,8 @@ function Orders() {
         if (result.success) {
           setPaymentStatus(newStatus);
           toast.success(result.message);
+          // Refresh data after successful status update
+          await fetchData();
         } else {
           toast.error(result.message);
         }
@@ -315,6 +319,8 @@ function Orders() {
         if (result.success) {
           setOrderStatus(newStatus);
           toast.success(result.message);
+          // Refresh data after successful status update
+          await fetchData();
         } else {
           toast.error(result.message);
         }
@@ -396,7 +402,7 @@ function Orders() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="h-[calc(100vh-200px)]">
       <PageHeader content={"Orders"} />
 
       {isLoading ? (

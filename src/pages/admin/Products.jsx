@@ -78,7 +78,7 @@ function Products() {
   };
 
   return (
-    <div className="space-y-6 relative min-h-screen pb-20">
+    <div className="space-y-6 relative h-[calc(100vh-200px)] pb-20">
       <PageHeader content="Products" />
 
       <div className="flex flex-col md:flex-row justify-between">
