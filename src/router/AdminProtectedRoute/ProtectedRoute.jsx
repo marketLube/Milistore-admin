@@ -10,7 +10,7 @@ function ProtectedRoute({ children }) {
         return children;
       })
       .catch((err) => {
-        navigate("admin/login");
+        navigate("/admin/login");
         toast.error("You are not authorized to access this page please login");
       });
   }, []);

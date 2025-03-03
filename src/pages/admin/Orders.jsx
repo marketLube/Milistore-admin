@@ -4,10 +4,12 @@ import DateRangePicker from "../../components/shared/Datepicker";
 import Ordercards from "../../components/Admin/Order/Ordercards";
 import { getcategoriesbrands } from "../../sevices/adminApis";
 import { getOrders } from "../../sevices/OrderApis";
+import LoadingSpinner from "../../components/spinner/LoadingSpinner";
 
 function Orders() {
   const [formUtilites, setFormUtilites] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const AnalysisData = [
     { data: "Orders Completed", color: "#00BA9D", count: "2345" },
     { data: "Orders Confirmed", color: "#FF5470", count: "323" },
@@ -18,11 +20,13 @@ function Orders() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
+        setIsLoading(true);
         const res = await getOrders();
         setOrders(res.orders);
-        console.log(res.orders);
       } catch (err) {
         console.log(err);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchOrders();
@@ -203,13 +207,11 @@ function Orders() {
     const handlePaymentStatusChange = (newStatus) => {
       setPaymentStatus(newStatus);
       // Add your API call here to update payment status
-      console.log("Payment status changed to:", newStatus);
     };
 
     const handleOrderStatusChange = (newStatus) => {
       setOrderStatus(newStatus);
       // Add your API call here to update order status
-      console.log("Order status changed to:", newStatus);
     };
 
     // Function to format products display
@@ -267,69 +269,74 @@ function Orders() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen">
       <PageHeader content={"Orders"} />
 
-      <div className="flex">
-        <div className="w-1/3 space-y-2">
-          <p className="font-medium text-sm">Sales Period</p>
-          <div className="w-full">
-            <DateRangePicker />
-          </div>
-          <div className="w-full">
-            <select
-              id="countries"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-80 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            >
-              <option value="">Filter by Product Category</option>
-              {formUtilites.categories?.map((category) => (
-                <option key={category._id} value={category._id}>
-                  {category.name}
-                </option>
+      {isLoading ? (
+        <LoadingSpinner color="primary" text="Loading orders..." />
+      ) : (
+        <>
+          <div className="flex">
+            <div className="w-1/3 space-y-2">
+              <p className="font-medium text-sm">Sales Period</p>
+              <div className="w-full">
+                <DateRangePicker />
+              </div>
+              <div className="w-full">
+                <select
+                  id="countries"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-80 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                >
+                  <option value="">Filter by Product Category</option>
+                  {formUtilites.categories?.map((category) => (
+                    <option key={category._id} value={category._id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-2 items-center">
+              {AnalysisData?.map((d, index) => (
+                <Ordercards key={index} data={d.data} count={d.count} />
               ))}
-            </select>
+            </div>
           </div>
-        </div>
 
-        <div className="flex gap-2 items-center">
-          {AnalysisData?.map((d) => (
-            <Ordercards data={d.data} count={d.count} />
-          ))}
-        </div>
-      </div>
-      {/* table */}
-
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-5">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" className="px-6 py-3">
-                Order Items
-              </th>
-              <th scope="col" className="px-6 py-3">
-                <div className="flex items-center">Phone Number</div>
-              </th>
-              <th scope="col" className="px-6 py-3">
-                <div className="flex items-center">Address</div>
-              </th>
-              <th scope="col" className="px-6 py-3">
-                <div className="flex items-center">Categories</div>
-              </th>
-              <th scope="col" className="px-6 py-3">
-                <div className="flex items-center">Payment Status</div>
-              </th>
-              <th scope="col" className="px-6 py-3">
-                <div className="flex items-center">Order Status</div>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders?.map((order) => (
-              <TableRow order={order} />
-            ))}
-          </tbody>
-        </table>
-      </div>
+          <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-5">
+            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                  <th scope="col" className="px-6 py-3">
+                    Order Items
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    <div className="flex items-center">Phone Number</div>
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    <div className="flex items-center">Address</div>
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    <div className="flex items-center">Categories</div>
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    <div className="flex items-center">Payment Status</div>
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    <div className="flex items-center">Order Status</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders?.map((order) => (
+                  <TableRow key={order._id} order={order} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </div>
   );
 }

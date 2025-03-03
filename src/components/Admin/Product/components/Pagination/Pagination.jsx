@@ -1,7 +1,6 @@
 import React from "react";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  console.log(totalPages, currentPage);
   return (
     <nav aria-label="Page navigation example">
       <ul className="inline-flex -space-x-px text-sm">

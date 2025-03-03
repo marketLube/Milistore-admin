@@ -237,17 +237,14 @@ const Coupon = () => {
 
   const handleSubmit = (formData) => {
     // Handle form submission
-    console.log("Form submitted:", formData);
   };
 
   const handleEdit = (coupon) => {
     // Handle edit action
-    console.log("Edit coupon:", coupon);
   };
 
   const handleDelete = (couponId) => {
     // Handle delete action
-    console.log("Delete coupon:", couponId);
   };
 
   return (
