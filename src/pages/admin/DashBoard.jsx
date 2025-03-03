@@ -50,7 +50,7 @@ function DashBoard() {
       {/* quick analysis */}
       <div className="flex flex-col lg:flex-row items-center justify-evenly  py-3 bg-white">
         <div>
-          <Logo />
+          <img src="/images/logo.png" alt="logo image" className="w-[20rem]" />
         </div>
         <div>
           <p className="text-lg font-bold">September 2024</p>

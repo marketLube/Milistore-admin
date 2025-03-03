@@ -35,7 +35,7 @@ function LoginComponent({ role }) {
   return (
     <div className="h-screen flex items-center w-full">
       <div className="w-1/2 bg-[#FFF2AE] h-full hidden md:flex  items-center justify-center">
-        <img src="/images/Logo.svg" alt="logimage" className="w-48" />
+        <img src="/images/logo.png" alt="logo image" className="w-[40rem]" />
       </div>
       <div className="w-full md:w-1/2 flex justify-center p-3 md:p-0">
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
