@@ -9,8 +9,13 @@ import Review from "../pages/admin/Review";
 import Customers from "../pages/admin/Customers";
 import Addproduct from "../pages/admin/Addproduct";
 import ProtectedRoute from "./AdminProtectedRoute/ProtectedRoute";
+import Homepage from "../pages/user/Homepage";
 
 export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Homepage />,
+  },
   {
     path: "/admin/login",
     element: <LoginComponent role={"Admin"} />,
