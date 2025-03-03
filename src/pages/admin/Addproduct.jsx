@@ -51,7 +51,7 @@ function Addproduct() {
         const res = await getcategoriesbrands();
         setFormUtilites(res.data);
       } catch (err) {
-        console.log(err);
+        toast.error("Failed to fetch categories and brands");
       }
     };
     fetchData();
@@ -271,7 +271,6 @@ function Addproduct() {
       } else {
         toast.error("Failed to add product");
       }
-      console.log(err);
     } finally {
       setIsPublishing(false);
     }

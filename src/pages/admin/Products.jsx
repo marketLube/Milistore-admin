@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { listProducts } from "../../sevices/ProductApis";
+import { listProducts, searchProducts } from "../../sevices/ProductApis";
 import LoadingSpinner from "../../components/spinner/LoadingSpinner";
 
 import PageHeader from "../../components/Admin/PageHeader";
@@ -13,11 +13,16 @@ function Products() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(5);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchKeyword, setSearchKeyword] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchProducts(currentPage);
-  }, []);
+    if (searchKeyword) {
+      handleSearch();
+    } else {
+      fetchProducts(currentPage);
+    }
+  }, [currentPage, searchKeyword]);
 
   const fetchProducts = async (page) => {
     try {
@@ -28,19 +33,48 @@ function Products() {
       setTotalPages(res?.data?.data?.totalPages);
       //   setCurrentPage(res?.data?.data?.currentPage);
     } catch (err) {
+      toast.error("Failed to fetch products");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
+    try {
+      setIsLoading(true);
+      const res = await searchProducts({
+        keyword: searchKeyword,
+        page: currentPage,
+        limit: 3,
+      });
+      setProducts(res?.data?.data?.products);
+      setTotalPages(res?.data?.data?.totalPages);
+    } catch (err) {
       console.log(err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSearch = (e) => {
-    // Implement search logic
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = setTimeout(() => {
+        func.apply(null, args);
+      }, delay);
+    };
   };
+
+  const handleSearchInput = debounce((value) => {
+    setCurrentPage(1);
+    setSearchKeyword(value);
+  }, 500);
 
   const handlePageChange = async (page) => {
     setCurrentPage(page);
-    await fetchProducts(page);
   };
 
   return (
@@ -54,25 +88,33 @@ function Products() {
         >
           Add New Product
         </button>
-        <SearchBar handleSearch={handleSearch} />
+        <SearchBar handleSearch={(e) => handleSearchInput(e.target.value)} />
       </div>
 
       {isLoading ? (
         <LoadingSpinner color="primary" text="Loading products..." />
       ) : (
         <>
-          <ProductTable products={products} />
+          {products.length === 0 ? (
+            <div className="text-center py-4 text-gray-500">
+              No products found
+            </div>
+          ) : (
+            <ProductTable products={products} />
+          )}
 
-          <div className="flex justify-between fixed right-9">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-            {/* <button className="btn fixed  bg-red-600 text-white py-1 rounded-sm px-3">
-              Delete
-            </button> */}
-          </div>
+          {totalPages > 1 && (
+            <div className="flex justify-between fixed right-9">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+              {/* <button className="btn fixed  bg-red-600 text-white py-1 rounded-sm px-3">
+                Delete
+              </button> */}
+            </div>
+          )}
         </>
       )}
     </div>

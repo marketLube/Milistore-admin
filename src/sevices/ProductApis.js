@@ -7,3 +7,18 @@ export const listProducts = (page) => {
 export const addProduct = (formData) => {
   return axiosInstance.post("product/addproduct", formData);
 };
+
+export const searchProducts = async ({ keyword, page = 1, limit = 3 }) => {
+  try {
+    const response = await axiosInstance.get(`product/search`, {
+      params: {
+        keyword,
+        page,
+        limit,
+      },
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
