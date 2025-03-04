@@ -10,6 +10,9 @@ import Customers from "../pages/admin/Customers";
 import Addproduct from "../pages/admin/Addproduct";
 import ProtectedRoute from "./AdminProtectedRoute/ProtectedRoute";
 import Homepage from "../pages/user/Homepage";
+import Category from "../pages/admin/Category";
+import Brand from "../pages/admin/Brand";
+import Label from "../pages/admin/Label";
 
 export const router = createBrowserRouter([
   {
@@ -43,6 +46,18 @@ export const router = createBrowserRouter([
       {
         path: "order",
         element: <Orders />,
+      },
+      {
+        path: "category",
+        element: <Category />,
+      },
+      {
+        path: "brand",
+        element: <Brand />,
+      },
+      {
+        path: "label",
+        element: <Label />,
       },
       {
         path: "coupon",

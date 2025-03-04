@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import PageHeader from "../../components/Admin/PageHeader";
-import { listUsers } from "../../sevices/userApis";
+import { listUsers, searchUser } from "../../sevices/userApis";
+import LoadingSpinner from "../../components/spinner/LoadingSpinner";
+import debounce from "lodash/debounce";
 
 function Customers() {
   const [users, setUsers] = useState([]);
@@ -11,12 +13,35 @@ function Customers() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [hasPrevPage, setHasPrevPage] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    debounce(async (query) => {
+      if (!query.trim()) {
+        // If search is empty, fetch normal list
+        try {
+          setLoading(true);
+          const response = await listUsers(currentPage, 10);
+
+          setUsers(response.data.users);
+          setTotalPages(response.data.pagination.totalPages);
+          setTotalUsers(response.data.pagination.totalUsers);
+          setHasNextPage(response.data.pagination.hasNextPage);
+          setHasPrevPage(response.data.pagination.hasPrevPage);
+        } catch (error) {
+          console.log(error);
+          setError(error);
+        } finally {
+          setLoading(false);
+        }
+        return;
+      }
+
+      // Perform search
       try {
-        const response = await listUsers(currentPage, 10);
+        setLoading(true);
+        const response = await searchUser(query);
         setUsers(response.data.users);
         setTotalPages(response.data.pagination.totalPages);
         setTotalUsers(response.data.pagination.totalUsers);
@@ -27,9 +52,38 @@ function Customers() {
       } finally {
         setLoading(false);
       }
-    };
-    fetchUsers();
-  }, [currentPage]);
+    }, 500),
+    [currentPage]
+  );
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    debouncedSearch(query);
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    if (!searchQuery) {
+      const fetchUsers = async () => {
+        setLoading(true);
+        try {
+          const response = await listUsers(currentPage, 10);
+          setUsers(response.data.users);
+          setTotalPages(response.data.pagination.totalPages);
+          setTotalUsers(response.data.pagination.totalUsers);
+          setHasNextPage(response.data.pagination.hasNextPage);
+          setHasPrevPage(response.data.pagination.hasPrevPage);
+        } catch (error) {
+          setError(error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchUsers();
+    }
+  }, [currentPage, searchQuery]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -112,6 +166,8 @@ function Customers() {
                 id="table-search-users"
                 className="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Search for users"
+                value={searchQuery}
+                onChange={handleSearchChange}
               />
             </div>
           </div>
@@ -137,7 +193,11 @@ function Customers() {
                 {loading ? (
                   <tr>
                     <td colSpan="6" className="text-center py-4">
-                      Loading...
+                      <LoadingSpinner
+                        color="primary"
+                        text="Loading users..."
+                        size="sm"
+                      />
                     </td>
                   </tr>
                 ) : error ? (

@@ -406,7 +406,7 @@ function Orders() {
       <PageHeader content={"Orders"} />
 
       {isLoading ? (
-        <LoadingSpinner color="primary" text="Loading orders..." />
+        <LoadingSpinner color="primary" text="Loading orders..." fullScreen />
       ) : (
         <>
           <div className="flex gap-[3rem]">
