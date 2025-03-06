@@ -339,7 +339,11 @@ function Orders() {
         >
           <div className="flex items-start">
             <img
-              src={product.productId.images[0]}
+              src={
+                product?.productId?.images[0]
+                  ? product?.productId?.images[0]
+                  : product?.variantId?.images[0]
+              }
               alt={product.productId.name}
               className="w-10 h-10 object-cover rounded mr-2"
             />
