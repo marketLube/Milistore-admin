@@ -23,7 +23,19 @@ export const addCategory = async (categoryData) => {
 export const editCategory = async (categoryId, categoryData) => {
   const response = await axiosInstance.patch(
     `/category/editcategory/${categoryId}`,
-    categoryData
+    categoryData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return response.data;
+};
+
+export const deleteCategory = async (categoryId) => {
+  const response = await axiosInstance.delete(
+    `/category/deletecategory/${categoryId}`
   );
   return response.data;
 };

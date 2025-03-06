@@ -1,14 +1,24 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import PageHeader from "../../components/Admin/PageHeader";
 import {
   getAllCategories,
   searchCategory,
   addCategory,
   editCategory,
+  deleteCategory,
 } from "../../sevices/categoryApis";
 import { toast } from "react-toastify";
 import debounce from "lodash/debounce";
 import LoadingSpinner from "../../components/spinner/LoadingSpinner";
+import ConfirmationModal from "../../components/Admin/ConfirmationModal";
+import {
+  FaEdit,
+  FaTrash,
+  FaChevronLeft,
+  FaChevronRight,
+  FaCamera,
+} from "react-icons/fa";
+
 function Category() {
   const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,8 +28,19 @@ function Category() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    parent: "",
+    image: null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [parentCategories, setParentCategories] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     fetchCategories();
@@ -37,7 +58,6 @@ function Category() {
     }
   };
 
-  // Debounced search function
   const debouncedSearch = useCallback(
     debounce(async (query) => {
       if (!query.trim()) {
@@ -49,6 +69,7 @@ function Category() {
         setLoading(true);
         const response = await searchCategory(query);
         setCategories(response.category);
+        setCurrentPage(1);
       } catch (error) {
         toast.error("Failed to search categories");
       } finally {
@@ -72,15 +93,41 @@ function Category() {
     }));
   };
 
+  const handleImageClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+      }));
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
     try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("description", formData.description);
+      if (formData.parent) {
+        formDataToSend.append("parent", formData.parent);
+      }
+      if (formData.image) {
+        formDataToSend.append("image", formData.image);
+      }
+
       if (editingCategory) {
-        await editCategory(editingCategory._id, formData);
+        await editCategory(editingCategory._id, formDataToSend);
         toast.success("Category updated successfully");
       } else {
-        await addCategory(formData);
+        await addCategory(formDataToSend);
         toast.success("Category added successfully");
       }
       setShowModal(false);
@@ -98,7 +145,10 @@ function Category() {
     setFormData({
       name: category.name,
       description: category.description,
+      parent: category.parent?._id || "",
+      image: null,
     });
+    setImagePreview(category.image);
     setShowModal(true);
   };
 
@@ -106,7 +156,10 @@ function Category() {
     setFormData({
       name: "",
       description: "",
+      parent: "",
+      image: null,
     });
+    setImagePreview(null);
     setEditingCategory(null);
   };
 
@@ -115,12 +168,281 @@ function Category() {
     resetForm();
   };
 
-  // Cleanup debounce on component unmount
+  const fetchParentCategories = async () => {
+    try {
+      const response = await getAllCategories();
+      const filtered = response.envelop.data.filter(
+        (cat) => !editingCategory || cat._id !== editingCategory._id
+      );
+      setParentCategories(filtered);
+    } catch (error) {
+      toast.error("Failed to fetch parent categories");
+    }
+  };
+
+  const handleOpenModal = () => {
+    fetchParentCategories();
+    setShowModal(true);
+  };
+
   useEffect(() => {
     return () => {
       debouncedSearch.cancel();
     };
   }, [debouncedSearch]);
+
+  const handleDelete = (category) => {
+    setCategoryToDelete(category);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteCategory(categoryToDelete._id);
+      toast.success("Category deleted successfully");
+      fetchCategories();
+      setShowDeleteModal(false);
+      setCategoryToDelete(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to delete category");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+    setCategoryToDelete(null);
+  };
+
+  const renderCategoryRow = (category, level = 0, parentName = null) => {
+    return (
+      <React.Fragment key={category._id}>
+        <tr className="bg-white border-b hover:bg-gray-50">
+          <td className="px-6 py-4 font-medium text-gray-900">
+            {category._id}
+          </td>
+          <td className="px-6 py-4">
+            <div className="flex items-center gap-3">
+              {category.image && (
+                <img
+                  src={category.image}
+                  alt={category.name}
+                  className="w-10 h-10 object-cover rounded"
+                />
+              )}
+              <div className="flex items-center">
+                {level > 0 && (
+                  <>
+                    {parentName && (
+                      <span className="text-gray-500 mr-2">{parentName}</span>
+                    )}
+                    <svg
+                      className="w-4 h-4 mr-2 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </>
+                )}
+                {category.name}
+              </div>
+            </div>
+          </td>
+          <td className="px-6 py-4">{category.description}</td>
+          <td className="px-6 py-4 flex gap-3  items-center">
+            <button
+              onClick={() => handleEdit(category)}
+              className="font-medium text-blue-600 hover:underline"
+            >
+              <FaEdit size={18} />
+            </button>
+            <button
+              onClick={() => handleDelete(category)}
+              className="font-medium text-red-600 hover:underline"
+            >
+              <FaTrash size={18} />
+            </button>
+          </td>
+        </tr>
+        {category.subcategories?.map((subcategory) =>
+          renderCategoryRow(subcategory, level + 1, category.name)
+        )}
+      </React.Fragment>
+    );
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const Pagination = () => {
+    const totalItems = searchQuery
+      ? categories.length
+      : categories.filter((category) => !category.parent).length;
+
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+        <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm text-gray-700">
+              Showing{" "}
+              <span className="font-medium">
+                {Math.min((currentPage - 1) * itemsPerPage + 1, totalItems)}
+              </span>{" "}
+              to{" "}
+              <span className="font-medium">
+                {Math.min(currentPage * itemsPerPage, totalItems)}
+              </span>{" "}
+              of <span className="font-medium">{totalItems}</span> results
+            </p>
+          </div>
+          <div>
+            <nav
+              className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+              aria-label="Pagination"
+            >
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 ${
+                  currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                <span className="sr-only">Previous</span>
+                <FaChevronLeft className="h-5 w-5" aria-hidden="true" />
+              </button>
+
+              {startPage > 1 && (
+                <>
+                  <button
+                    onClick={() => handlePageChange(1)}
+                    className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                  >
+                    1
+                  </button>
+                  {startPage > 2 && (
+                    <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300">
+                      ...
+                    </span>
+                  )}
+                </>
+              )}
+
+              {pageNumbers.map((number) => (
+                <button
+                  key={number}
+                  onClick={() => handlePageChange(number)}
+                  className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+                    currentPage === number
+                      ? "z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                      : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                  }`}
+                >
+                  {number}
+                </button>
+              ))}
+
+              {endPage < totalPages && (
+                <>
+                  {endPage < totalPages - 1 && (
+                    <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300">
+                      ...
+                    </span>
+                  )}
+                  <button
+                    onClick={() => handlePageChange(totalPages)}
+                    className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                  >
+                    {totalPages}
+                  </button>
+                </>
+              )}
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+              >
+                <span className="sr-only">Next</span>
+                <FaChevronRight className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </nav>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderTableBody = () => {
+    if (loading) {
+      return (
+        <tr>
+          <td colSpan="4" className="text-center py-4">
+            <LoadingSpinner
+              color="primary"
+              text="Loading categories..."
+              size="sm"
+            />
+          </td>
+        </tr>
+      );
+    }
+
+    if (categories.length === 0) {
+      return (
+        <tr>
+          <td colSpan="4" className="text-center py-4">
+            No categories found
+          </td>
+        </tr>
+      );
+    }
+
+    const categoriesToDisplay = searchQuery
+      ? categories
+      : categories.filter((category) => !category.parent);
+
+    const newTotalPages = Math.ceil(categoriesToDisplay.length / itemsPerPage);
+    if (newTotalPages !== totalPages) {
+      setTotalPages(newTotalPages);
+    }
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = categoriesToDisplay.slice(
+      indexOfFirstItem,
+      indexOfLastItem
+    );
+
+    return currentItems.map((category) => renderCategoryRow(category));
+  };
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
@@ -129,7 +451,6 @@ function Category() {
       <div className="flex flex-col m-4">
         <div className="relative overflow-hidden shadow-md sm:rounded-lg flex flex-col flex-1 bg-white">
           <div className="flex items-center justify-between px-3">
-            {/* Search section */}
             <div className="flex items-center justify-between flex-wrap md:flex-row p-4 border-b">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -158,7 +479,7 @@ function Category() {
             </div>
             <div>
               <button
-                onClick={() => setShowModal(true)}
+                onClick={handleOpenModal}
                 className="block text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                 type="button"
               >
@@ -167,7 +488,6 @@ function Category() {
             </div>
           </div>
 
-          {/* Table section */}
           <div className="overflow-y-auto flex-1">
             <table className="w-full text-sm text-left text-gray-500">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0 z-10">
@@ -187,51 +507,15 @@ function Category() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {loading ? (
-                  <tr>
-                    <td colSpan="4" className="text-center py-4">
-                      <LoadingSpinner
-                        color="primary"
-                        text="Loading categories..."
-                        size="sm"
-                      />
-                    </td>
-                  </tr>
-                ) : categories.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" className="text-center py-4">
-                      No categories found
-                    </td>
-                  </tr>
-                ) : (
-                  categories.map((category) => (
-                    <tr
-                      key={category._id}
-                      className="bg-white border-b hover:bg-gray-50"
-                    >
-                      <td className="px-6 py-4 font-medium text-gray-900">
-                        {category._id}
-                      </td>
-                      <td className="px-6 py-4">{category.name}</td>
-                      <td className="px-6 py-4">{category.description}</td>
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={() => handleEdit(category)}
-                          className="font-medium text-blue-600 hover:underline"
-                        >
-                          Edit
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
+                {renderTableBody()}
               </tbody>
             </table>
           </div>
+
+          <Pagination />
         </div>
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
@@ -260,6 +544,40 @@ function Category() {
             </div>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category Image
+                </label>
+                <div
+                  onClick={handleImageClick}
+                  className="relative w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-400 transition-colors"
+                >
+                  {imagePreview ? (
+                    <div className="relative w-full h-full">
+                      <img
+                        src={imagePreview}
+                        alt="Category preview"
+                        className="w-full h-full object-contain rounded-lg"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <FaCamera className="text-white text-3xl" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <FaCamera className="mx-auto text-gray-400 text-3xl mb-2" />
+                      <p className="text-gray-500">Click to upload image</p>
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+              </div>
+              <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Category Name
                 </label>
@@ -284,6 +602,24 @@ function Category() {
                   rows="3"
                   required
                 />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Parent Category (Optional)
+                </label>
+                <select
+                  name="parent"
+                  value={formData.parent}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">None (Root Category)</option>
+                  {parentCategories.map((category) => (
+                    <option key={category._id} value={category._id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="flex justify-end gap-2">
                 <button
@@ -333,6 +669,23 @@ function Category() {
           </div>
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        title="Confirm Delete"
+        message={`Are you sure you want to delete the category "${categoryToDelete?.name}"?`}
+        warningMessage={
+          categoryToDelete?.subcategories?.length > 0
+            ? "Warning: This category has subcategories. Please delete them first."
+            : ""
+        }
+        isDisabled={categoryToDelete?.subcategories?.length > 0}
+        isLoading={isDeleting}
+        confirmButtonText="Delete"
+        confirmButtonColor="red"
+      />
     </div>
   );
 }

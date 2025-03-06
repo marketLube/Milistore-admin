@@ -1,14 +1,18 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import PageHeader from "../../components/Admin/PageHeader";
 import {
   getAllBrands,
   searchBrand,
   addBrand,
   editBrand,
+  deleteBrand,
 } from "../../sevices/brandApis";
 import { toast } from "react-toastify";
 import debounce from "lodash/debounce";
 import LoadingSpinner from "../../components/spinner/LoadingSpinner";
+import { FaEdit, FaTrash, FaCamera } from "react-icons/fa";
+import ConfirmationModal from "../../components/Admin/ConfirmationModal";
+
 function Brand() {
   const [brands, setBrands] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,8 +22,14 @@ function Brand() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    image: null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [brandToDelete, setBrandToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchBrands();
@@ -72,15 +82,38 @@ function Brand() {
     }));
   };
 
+  const handleImageClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+      }));
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
     try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("description", formData.description);
+      if (formData.image) {
+        formDataToSend.append("image", formData.image);
+      }
+
       if (editingBrand) {
-        await editBrand(editingBrand._id, formData);
+        await editBrand(editingBrand._id, formDataToSend);
         toast.success("Brand updated successfully");
       } else {
-        await addBrand(formData);
+        await addBrand(formDataToSend);
         toast.success("Brand added successfully");
       }
       setShowModal(false);
@@ -98,7 +131,9 @@ function Brand() {
     setFormData({
       name: brand.name,
       description: brand.description,
+      image: null,
     });
+    setImagePreview(brand.image);
     setShowModal(true);
   };
 
@@ -106,13 +141,40 @@ function Brand() {
     setFormData({
       name: "",
       description: "",
+      image: null,
     });
     setEditingBrand(null);
+    setImagePreview(null);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     resetForm();
+  };
+
+  const handleDelete = (brand) => {
+    setBrandToDelete(brand);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteBrand(brandToDelete._id);
+      toast.success("Brand deleted successfully");
+      fetchBrands();
+      setShowDeleteModal(false);
+      setBrandToDelete(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to delete brand");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+    setBrandToDelete(null);
   };
 
   useEffect(() => {
@@ -207,14 +269,30 @@ function Brand() {
                       <td className="px-6 py-4 font-medium text-gray-900">
                         {brand._id}
                       </td>
-                      <td className="px-6 py-4">{brand.name}</td>
-
                       <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          {brand.image && (
+                            <img
+                              src={brand.image}
+                              alt={brand.name}
+                              className="w-10 h-10 object-cover rounded"
+                            />
+                          )}
+                          {brand.name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 flex gap-3">
                         <button
                           onClick={() => handleEdit(brand)}
                           className="font-medium text-blue-600 hover:underline"
                         >
-                          Edit
+                          <FaEdit size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(brand)}
+                          className="font-medium text-red-600 hover:underline"
+                        >
+                          <FaTrash size={18} />
                         </button>
                       </td>
                     </tr>
@@ -253,6 +331,40 @@ function Brand() {
               </button>
             </div>
             <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Brand Image
+                </label>
+                <div
+                  onClick={handleImageClick}
+                  className="relative w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-400 transition-colors"
+                >
+                  {imagePreview ? (
+                    <div className="relative w-full h-full">
+                      <img
+                        src={imagePreview}
+                        alt="Brand preview"
+                        className="w-full h-full object-contain rounded-lg"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <FaCamera className="text-white text-3xl" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <FaCamera className="mx-auto text-gray-400 text-3xl mb-2" />
+                      <p className="text-gray-500">Click to upload image</p>
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+              </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Brand Name
@@ -315,6 +427,17 @@ function Brand() {
           </div>
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        title="Confirm Delete"
+        message={`Are you sure you want to delete the brand "${brandToDelete?.name}"?`}
+        isLoading={isDeleting}
+        confirmButtonText="Delete"
+        confirmButtonColor="red"
+      />
     </div>
   );
 }

@@ -18,19 +18,24 @@ export const searchBrand = async (query) => {
 };
 
 export const addBrand = async (brandData) => {
-  try {
-    const response = await axiosInstance.post("/brand", brandData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await axiosInstance.post("/brand", brandData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
 };
 
 export const editBrand = async (brandId, brandData) => {
-  try {
-    const response = await axiosInstance.patch(`/brand/${brandId}`, brandData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await axiosInstance.patch(`/brand/${brandId}`, brandData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};
+
+export const deleteBrand = async (brandId) => {
+  const response = await axiosInstance.delete(`/brand/${brandId}`);
+  return response.data;
 };

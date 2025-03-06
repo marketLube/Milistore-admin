@@ -103,7 +103,7 @@ function Products() {
   }, [debouncedSearch]);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
+    <div className="flex flex-col min-h-screen bg-gray-100">
       <PageHeader content="Products" />
 
       <div className="flex flex-col  m-4">

@@ -26,20 +26,20 @@ const ProductTableRow = ({ product }) => {
         scope="row"
         className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
       >
-        {product.name}
+        {product?.name}
       </th>
-      <td className="px-6 py-4">{product.brand.name}</td>
-      <td className="px-6 py-4">{product.stock}</td>
-      <td className="px-6 py-4">₹{product.price}</td>
-      <td className="px-6 py-4">₹{product.offerPrice}</td>
-      <td className="px-6 py-4">{product.category?.name}</td>
+      <td className="px-6 py-4">{product?.brand?.name}</td>
+      <td className="px-6 py-4">{product?.stock}</td>
+      <td className="px-6 py-4">₹{product?.price}</td>
+      <td className="px-6 py-4">₹{product?.offerPrice}</td>
+      <td className="px-6 py-4">{product?.category?.name}</td>
       <td className="px-6 py-4">
-        {new Date(product.updatedAt).toLocaleDateString()}
+        {new Date(product?.updatedAt).toLocaleDateString()}
       </td>
       <td className="px-6 py-4">
         <FaEdit
           className="w-5 h-5 text-blue-600 cursor-pointer"
-          onClick={() => handleEdit(product._id)}
+          onClick={() => handleEdit(product?._id)}
         />
       </td>
     </tr>
