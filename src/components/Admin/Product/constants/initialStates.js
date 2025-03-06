@@ -12,6 +12,7 @@ export const initialProductState = {
 };
 
 export const initialVariantState = {
+  _id: "",
   sku: "",
   attributes: {
     title: "",

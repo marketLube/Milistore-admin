@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 
 //components
@@ -21,7 +21,11 @@ import { validateVariant } from "../../components/Admin/Product/components/Valid
 
 //  API services
 import { getcategoriesbrands } from "../../sevices/adminApis";
-import { addProduct } from "../../sevices/ProductApis";
+import {
+  addProduct,
+  getProductById,
+  updateProduct,
+} from "../../sevices/ProductApis";
 
 //  initial states
 import {
@@ -33,7 +37,7 @@ function Addproduct() {
   // State Management
   const [productData, setProductData] = useState(initialProductState);
   const [currentVariant, setCurrentVariant] = useState(initialVariantState);
-  const [selectedVariant, setSelectedVariant] = useState("");
+  const [selectedVariant, setSelectedVariant] = useState("noVariants");
   const [images, setImages] = useState([]);
   const [formUtilites, setFormUtilites] = useState({});
   const [showVariantForm, setShowVariantForm] = useState(true);
@@ -41,9 +45,59 @@ function Addproduct() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [errors, setErrors] = useState({});
   const [variantErrors, setVariantErrors] = useState({});
+  const [editMode, setEditMode] = useState(false);
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(null);
 
   const navigate = useNavigate();
 
+  const location = useLocation();
+  const productId = location.state?.productId;
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await getProductById(productId);
+        let hasVariants = false;
+        let variants = [];
+        setImages(res.data.images);
+        if (res.data.variants.length > 0) {
+          hasVariants = true;
+          setSelectedVariant("hasVariants");
+          setShowVariantForm(true);
+          variants = res.data.variants.map((variant) => ({
+            ...variant,
+            _id: variant._id,
+          }));
+          setCurrentVariant(variants[0]);
+          setImages(variants[0].images);
+          setSelectedVariantIndex(0);
+        }
+
+        const productData = {
+          name: res.data.name,
+          brand: res.data.brand._id,
+          category: res.data.category._id,
+          label: res.data.label._id,
+          variants: variants,
+          sku: !hasVariants ? res.data.sku : "",
+          description: !hasVariants ? res.data.description : "",
+          units: res.data.units,
+          price: !hasVariants ? res.data.price : "",
+          offerPrice: !hasVariants ? res.data.offerPrice : "",
+          stock: !hasVariants ? res.data.stock : "",
+          images: !hasVariants ? res.data.images : [],
+        };
+
+        setProductData(productData);
+      } catch (err) {
+        toast.error("Failed to fetch product");
+      }
+    };
+    if (productId) {
+      setEditMode(true);
+      fetchProduct();
+    }
+  }, [productId]);
   // Data Fetching
   useEffect(() => {
     const fetchData = async () => {
@@ -127,17 +181,44 @@ function Addproduct() {
       const newImages = [...images];
       newImages[index] = file;
       setImages(newImages);
+
+      // Update images in the appropriate place based on context
+      if (selectedVariant === "hasVariants") {
+        // If editing a variant, update its images
+        if (selectedVariantIndex !== null) {
+          setProductData((prev) => ({
+            ...prev,
+            variants: prev.variants.map((variant, i) =>
+              i === selectedVariantIndex
+                ? { ...variant, images: newImages }
+                : variant
+            ),
+          }));
+          // Also update currentVariant
+          setCurrentVariant((prev) => ({
+            ...prev,
+            images: newImages,
+          }));
+        }
+      } else {
+        // If editing product images
+        setProductData((prev) => ({
+          ...prev,
+          images: newImages,
+        }));
+      }
     }
   };
 
   const handleSaveVariant = () => {
     const variantData = {
+      _id: currentVariant._id,
       sku: currentVariant.sku,
       attributes: {
         title: currentVariant.attributes.title,
         description: currentVariant.attributes.description,
       },
-      price: currentVariant.originalPrice,
+      price: currentVariant.price,
       offerPrice: currentVariant.offerPrice,
       stock: currentVariant.stock,
       stockStatus: currentVariant.stockStatus,
@@ -148,17 +229,31 @@ function Addproduct() {
     const validationErrors = validateVariant(variantData);
     if (Object.keys(validationErrors).length > 0) {
       setVariantErrors(validationErrors);
-      //   toast.error("Please fill in all required variant fields");
       return;
     }
 
-    setProductData((prev) => ({
-      ...prev,
-      variants: [...prev.variants, variantData],
-    }));
+    if (selectedVariantIndex !== null) {
+      // Update existing variant
+      setProductData((prev) => ({
+        ...prev,
+        variants: prev.variants.map((variant, index) =>
+          index === selectedVariantIndex ? variantData : variant
+        ),
+      }));
+      toast.success("Variant updated successfully");
+    } else {
+      // Add new variant
+      setProductData((prev) => ({
+        ...prev,
+        variants: [...prev.variants, variantData],
+      }));
+      toast.success("Variant added successfully");
+    }
+
     resetVariantForm();
     setShowVariantForm(false);
     setVariantErrors({});
+    setSelectedVariantIndex(null);
   };
 
   const resetVariantForm = () => {
@@ -167,10 +262,29 @@ function Addproduct() {
   };
 
   const handleDeleteVariant = (index) => {
+    // Get the variant being deleted
+    const deletedVariant = productData.variants[index];
+
+    // Remove the variant from productData
     setProductData((prev) => ({
       ...prev,
       variants: prev.variants.filter((_, i) => i !== index),
     }));
+
+    // Check if the deleted variant is the current variant
+    if (
+      currentVariant.sku === deletedVariant.sku &&
+      currentVariant.attributes.title === deletedVariant.attributes.title
+    ) {
+      // Reset current variant to initial state
+      setCurrentVariant(initialVariantState);
+      // Clear images
+      setImages([]);
+      // Hide the variant form
+      setShowVariantForm(false);
+      // Clear any variant errors
+      setVariantErrors({});
+    }
   };
 
   const handlePublish = async () => {
@@ -195,12 +309,9 @@ function Addproduct() {
     );
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-
-      // Show specific error messages
       if (validationErrors.variants) {
         toast.error(validationErrors.variants);
         if (validationErrors.variantErrors) {
-          // Show detailed variant errors
           validationErrors.variantErrors.forEach((variantError, index) => {
             if (variantError) {
               const errorMessages = Object.values(variantError).join(", ");
@@ -226,9 +337,8 @@ function Addproduct() {
 
     if (selectedVariant === "hasVariants") {
       // For products with variants
-      const formattedVariants = productData.variants.map((variant, index) => {
-        // Create a clean variant object without prototype
-        const cleanVariant = {
+      const formattedVariants = productData.variants.map((variant) => {
+        const variantData = {
           sku: variant.sku,
           attributes: {
             title: variant.attributes.title,
@@ -240,21 +350,52 @@ function Addproduct() {
           stockStatus: variant.stockStatus,
         };
 
-        // Handle variant images separately
-        if (variant.images && variant.images.length > 0) {
-          variant.images.forEach((image, imageIndex) => {
-            if (image) {
-              formData.append(`variants[${index}][images]`, image);
-            }
-          });
+        if (variant._id) {
+          variantData._id = variant._id;
         }
 
-        return cleanVariant;
+        return variantData;
       });
 
       // Append each variant separately
-      formattedVariants.forEach((variant, index) => {
-        formData.append(`variants[]`, JSON.stringify(variant));
+      formattedVariants.forEach((variant, variantIndex) => {
+        if (variant._id) {
+          formData.append(`variants[${variantIndex}][_id]`, variant._id);
+        }
+
+        formData.append(`variants[${variantIndex}][sku]`, variant.sku);
+        formData.append(
+          `variants[${variantIndex}][attributes][title]`,
+          variant.attributes.title
+        );
+        formData.append(
+          `variants[${variantIndex}][attributes][description]`,
+          variant.attributes.description
+        );
+        formData.append(`variants[${variantIndex}][price]`, variant.price);
+        formData.append(
+          `variants[${variantIndex}][offerPrice]`,
+          variant.offerPrice
+        );
+        formData.append(`variants[${variantIndex}][stock]`, variant.stock);
+        formData.append(
+          `variants[${variantIndex}][stockStatus]`,
+          variant.stockStatus
+        );
+
+        // Handle images for this variant with indices
+        if (productData.variants[variantIndex].images) {
+          productData.variants[variantIndex].images.forEach(
+            (image, imageIndex) => {
+              if (image instanceof File) {
+                formData.append(
+                  `variants[${variantIndex}][images][${imageIndex}]`,
+                  image
+                );
+              }
+            }
+          );
+        }
       });
     } else {
       // For products without variants
@@ -264,35 +405,63 @@ function Addproduct() {
       formData.append("offerPrice", productData.offerPrice);
       formData.append("stock", productData.stock);
 
-      // Handle product images
+      // Handle product images with indices
       images.forEach((image, index) => {
-        if (image) {
-          formData.append(`productImages`, image);
+        if (image instanceof File) {
+          formData.append(`productImages[${index}]`, image);
         }
       });
     }
 
     try {
-      const res = await addProduct(formData);
-      if (res.status === 201) {
-        toast.success("Product added successfully");
-        navigate("/admin/product");
+      let res;
+      if (editMode && productId) {
+        res = await updateProduct(productId, formData);
+        if (res.status === 200) {
+          toast.success("Product updated successfully");
+          navigate("/admin/product");
+        }
+      } else {
+        res = await addProduct(formData);
+        if (res.status === 201) {
+          toast.success("Product added successfully");
+          navigate("/admin/product");
+        }
       }
     } catch (err) {
-      if (err.response.data.message) {
+      if (err.response?.data?.message) {
         toast.error(err.response.data.message);
       } else {
-        toast.error("Failed to add product");
+        toast.error(
+          editMode ? "Failed to update product" : "Failed to add product"
+        );
       }
     } finally {
       setIsPublishing(false);
     }
   };
 
+  const handleCurrentVariant = (variant, index) => {
+    setCurrentVariant(variant);
+    setSelectedVariantIndex(index);
+    setShowVariantForm(true);
+    // Set the images from the selected variant
+    setImages(variant.images || []);
+  };
+
+  const closeVariantForm = () => {
+    setShowVariantForm(false);
+    setCurrentVariant(initialVariantState);
+    setImages([]);
+    setSelectedVariantIndex(null);
+  };
+
   return (
     <div className="space-y-3 w-full bg-white p-3 flex flex-col min-h-full">
       <PageHeader content={"Products"} />
-      <h1 className="font-bold text-lg mb-2">Add Product</h1>
+      <h1 className="font-bold text-lg mb-2">
+        {editMode ? "Edit Product" : "Add Product"}
+      </h1>
 
       <div className="w-full flex justify-between">
         <div
@@ -359,18 +528,31 @@ function Addproduct() {
                     </button>
                   )}
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  {productData.variants.map((variant, index) => (
-                    <VariantCard
-                      key={index}
-                      variant={{
-                        ...variant,
-                        variantNumber: index + 1,
-                        title: variant.attributes.title,
-                      }}
-                      handleDeleteVariant={() => handleDeleteVariant(index)}
-                    />
-                  ))}
+                <div
+                  className={`${
+                    showVariantForm ? "max-h-80" : ""
+                  } overflow-auto pr-2`}
+                >
+                  <div className="flex  flex-wrap gap-3">
+                    {productData.variants.map((variant, index) => (
+                      <VariantCard
+                        key={index}
+                        variant={{
+                          ...variant,
+                          variantNumber: index + 1,
+                          title: variant.attributes.title,
+                          // width: showVariantForm ? "max-w-64" : "w-full",
+                        }}
+                        editMode={editMode}
+                        isSelected={selectedVariantIndex === index}
+                        setCurrentVariant={() =>
+                          handleCurrentVariant(variant, index)
+                        }
+                        handleDeleteVariant={() => handleDeleteVariant(index)}
+                        currentVariant={currentVariant}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
@@ -463,7 +645,7 @@ function Addproduct() {
               </div>
 
               <ImageUploaderContainer
-                images={images}
+                images={editMode ? productData.images : images}
                 handleClick={handleClick}
                 handleFileChange={handleFileChange}
                 fileInputs={fileInputs}
@@ -477,6 +659,32 @@ function Addproduct() {
           (showVariantForm || productData.variants.length === 0) && (
             <div className="w-1/2 flex items-center">
               <div className="w-full space-y-3">
+                {productData.variants.length > 0 && (
+                  <div className="relative">
+                    <div className="absolute top-0 right-3 z-10">
+                      <button
+                        onClick={() => closeVariantForm()}
+                        className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-6 w-6"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex gap-2 px-3">
                   <div className="flex flex-col w-1/2">
                     <label className="block mb-2 text-sm font-medium text-gray-900">
@@ -521,7 +729,11 @@ function Addproduct() {
                 />
 
                 <ImageUploaderContainer
-                  images={images}
+                  images={
+                    editMode && selectedVariantIndex !== null
+                      ? currentVariant.images
+                      : images
+                  }
                   handleClick={handleClick}
                   handleFileChange={handleFileChange}
                   fileInputs={fileInputs}
@@ -533,7 +745,11 @@ function Addproduct() {
                     onClick={handleSaveVariant}
                     className="btn bg-blue-600 text-white p-1 px-3 rounded-3xl"
                   >
-                    Save Variant
+                    {editMode && currentVariant._id
+                      ? "Update Variant"
+                      : !editMode && selectedVariantIndex !== null
+                      ? "Update Variant"
+                      : "Save Variant"}
                   </button>
                 </div>
               </div>
@@ -545,6 +761,7 @@ function Addproduct() {
         <button
           className="btn bg-red-600 text-white p-1 px-3 w-full max-w-sm rounded-3xl"
           disabled={isPublishing}
+          onClick={() => navigate("/admin/product")}
         >
           Cancel
         </button>
@@ -579,6 +796,8 @@ function Addproduct() {
               </svg>
               <span>Publishing...</span>
             </>
+          ) : editMode ? (
+            "Update Product"
           ) : (
             "Publish Product"
           )}

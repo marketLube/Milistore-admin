@@ -1,4 +1,4 @@
-import ImageUploader from "./ImageUploader";
+import React from "react";
 import ErrorMessage from "../../../../common/ErrorMessage";
 
 const ImageUploaderContainer = ({
@@ -7,44 +7,83 @@ const ImageUploaderContainer = ({
   handleFileChange,
   fileInputs,
   error,
-}) => (
-  <div className="space-y-2">
-    <div className="images w-full flex gap-2 px-3 rounded-lg">
-      <div className="w-1/3">
-        <ImageUploader
-          index={0}
-          image={images[0]}
-          handleClick={handleClick}
-          handleFileChange={handleFileChange}
-          fileInputs={fileInputs}
-        />
-      </div>
-      <div className="w-1/3">
-        <ImageUploader
-          index={1}
-          image={images[1]}
-          handleClick={handleClick}
-          handleFileChange={handleFileChange}
-          fileInputs={fileInputs}
-        />
-      </div>
-      <div className="border w-1/3 h-52 flex flex-col gap-2">
-        {[...Array(2)].map((_, index) => (
-          <ImageUploader
+}) => {
+  console.log(images, "images in image uploader");
+  const getImageUrl = (image) => {
+    if (!image) return null;
+
+    if (typeof image === "string") return image;
+
+    if (image instanceof File) {
+      try {
+        return URL.createObjectURL(image);
+      } catch (error) {
+        console.error("Error creating object URL:", error);
+        return null;
+      }
+    }
+
+    return null;
+  };
+
+  return (
+    <div className="px-3">
+      <label className="block mb-2 text-sm font-medium text-gray-900">
+        Images <span className="text-red-500">*</span>
+      </label>
+      <div className="grid grid-cols-4 gap-4">
+        {[0, 1, 2, 3].map((index) => (
+          <div
             key={index}
-            index={index + 2}
-            image={images[index + 2]}
-            handleClick={handleClick}
-            handleFileChange={handleFileChange}
-            fileInputs={fileInputs}
-          />
+            onClick={() => handleClick(index)}
+            className={`relative aspect-square rounded-lg border-2 border-dashed ${
+              error ? "border-red-500" : "border-gray-300"
+            } hover:border-gray-400 cursor-pointer flex items-center justify-center overflow-hidden`}
+          >
+            {images && images[index] ? (
+              <>
+                <img
+                  src={getImageUrl(images[index])}
+                  alt={`Product ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span className="text-white text-sm">Change Image</span>
+                </div>
+              </>
+            ) : (
+              <div className="text-center p-4">
+                <svg
+                  className="mx-auto h-12 w-12 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                <span className="mt-2 block text-sm text-gray-400">
+                  Add Image
+                </span>
+              </div>
+            )}
+            <input
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={(e) => handleFileChange(e, index)}
+              ref={(el) => (fileInputs.current[index] = el)}
+            />
+          </div>
         ))}
       </div>
-    </div>
-    <div className="px-3">
       <ErrorMessage error={error} />
     </div>
-  </div>
-);
+  );
+};
 
 export default ImageUploaderContainer;
