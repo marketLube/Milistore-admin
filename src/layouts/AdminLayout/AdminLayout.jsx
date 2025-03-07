@@ -85,7 +85,7 @@ function AdminLayout() {
       {/* content */}
       <div className="p-4 sm:ml-64 bg-gray-100 min-h-screen">
         <div className="p-4 mt-14">
-          <div className="relative overflow-x-auto ">
+          <div className="relative  ">
             <Outlet />
           </div>
         </div>

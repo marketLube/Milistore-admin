@@ -445,12 +445,12 @@ function Category() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
+    <div className="flex flex-col h-full bg-gray-100">
       <PageHeader content="Categories" />
 
-      <div className="flex flex-col m-4">
-        <div className="relative overflow-hidden shadow-md sm:rounded-lg flex flex-col flex-1 bg-white">
-          <div className="flex items-center justify-between px-3">
+      <div className="flex flex-col flex-1 m-4">
+        <div className="flex flex-col h-full bg-white shadow-md sm:rounded-lg">
+          <div className="flex items-center justify-between px-3 py-4 border-b">
             <div className="flex items-center justify-between flex-wrap md:flex-row p-4 border-b">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -488,7 +488,7 @@ function Category() {
             </div>
           </div>
 
-          <div className="overflow-y-auto flex-1">
+          <div className="flex flex-col flex-1">
             <table className="w-full text-sm text-left text-gray-500">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0 z-10">
                 <tr>
@@ -506,13 +506,15 @@ function Category() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 overflow-auto">
                 {renderTableBody()}
               </tbody>
             </table>
-          </div>
 
-          <Pagination />
+            <div className="mt-auto">
+              <Pagination />
+            </div>
+          </div>
         </div>
       </div>
 
