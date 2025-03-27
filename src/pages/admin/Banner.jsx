@@ -2,7 +2,7 @@ import React, { useState, useRef,useEffect } from "react";
 import PageHeader from "../../components/Admin/PageHeader";
 import { FaTrash, FaEdit, FaCamera } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { addBanner, deleteBanner, editBanner, getBanners } from "../../sevices/bannerApis";
+import { addBanner, deleteBanner, editBanner, getBanners } from "../../sevices/BannerApis.js";
 function Banner() {
   const [showModal, setShowModal] = useState(false);
   const [editingBanner, setEditingBanner] = useState(null);
