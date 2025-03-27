@@ -32,7 +32,7 @@ function Orders() {
     "onrefound",
   ];
 
-  // Move fetchData outside of useEffect so it can be reused
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
@@ -60,7 +60,6 @@ function Orders() {
         getOrders(queryString),
         getOrderStats(),
       ]);
-      console.log(statsRes,"res");
       setOrders(ordersRes.orders);
       setOrderStats(statsRes.stats);
       setErrorMessage("");
@@ -72,7 +71,7 @@ function Orders() {
     }
   };
 
-  // Update useEffect to use the new fetchData function
+
   useEffect(() => {
     fetchData();
   }, [dateRange, selectedCategory, selectedStatus]);
@@ -97,7 +96,7 @@ function Orders() {
         <div className="bg-white rounded-lg p-6 w-96 shadow-xl">
           <h3 className="text-lg font-semibold mb-4">Confirm Status Change</h3>
           <p className="text-gray-600 mb-6">
-            Are you sure you want to change the status to ?
+            Are you sure you want to change the status to "{status}"?
           </p>
           <div className="flex justify-end gap-4">
             <button
@@ -240,7 +239,7 @@ function Orders() {
               }}
             >
               <div className="py-1" role="menu">
-                {orderStats?.map((status) => (
+                {options?.map((status) => (
                   <button
                     key={status}
                     onClick={() => handleStatusClick(status)}
@@ -275,9 +274,8 @@ function Orders() {
   };
 
   const TableRow = ({ order }) => {
-    console.log(order,"order in row");
     const [paymentStatus, setPaymentStatus] = useState(
-      order?.paymentStatus || "pending"
+      order.paymentStatus || "pending"
     );
     const [orderStatus, setOrderStatus] = useState(order.status || "pending");
 
@@ -300,7 +298,7 @@ function Orders() {
 
     const handlePaymentStatusChange = async (newStatus) => {
       try {
-        const result = await updateOrderStatus(order?._id, newStatus, "payment");
+        const result = await updateOrderStatus(order._id, newStatus, "payment");
         if (result.success) {
           setPaymentStatus(newStatus);
           toast.success(result.message);
@@ -346,13 +344,13 @@ function Orders() {
                   ? product?.productId?.images[0]
                   : product?.variantId?.images[0]
               }
-              alt={product.productId.name}
+              alt={product?.productId?.name}
               className="w-10 h-10 object-cover rounded mr-2"
             />
             <div>
-              <p className="font-medium">{product.productId.name}</p>
+              <p className="font-medium">{product?.productId?.name}</p>
               <p className="text-xs text-gray-500">
-                Qty: {product.quantity} × ₹{product.price}
+                Qty: {product?.quantity} × ₹{product?.price}
               </p>
             </div>
           </div>
@@ -371,14 +369,14 @@ function Orders() {
       <tr className="bg-white border-b hover:bg-gray-50">
         <td className="px-6 py-4">
           <div className="max-h-32 overflow-y-auto">
-            {formatProducts(order?.products)}
+            {formatProducts(order.products)}
           </div>
         </td>
         <td className="px-6 py-4 whitespace-nowrap">
-          {formatDate(order?.createdAt)}
+          {formatDate(order.createdAt)}
         </td>
-        <td className="px-6 py-4">{order?.user?.phonenumber}</td>
-        <td className="px-6 py-4">{order?.user?.address || "N/A"}</td>
+        <td className="px-6 py-4">{order.user.phonenumber}</td>
+        {/* <td className="px-6 py-4">{order.user.address || "N/A"}</td> */}
         <td className="px-6 py-4">
           <div className="space-y-1">
             {[
@@ -388,7 +386,7 @@ function Orders() {
         </td>
         <td className="px-6 py-4">
           <div className="font-medium text-gray-900">
-            ₹{order?.totalAmount?.toLocaleString() || 0}
+            ₹{order.totalAmount?.toLocaleString() || 0}
           </div>
         </td>
         <StatusDropdown
@@ -433,7 +431,7 @@ function Orders() {
                   <option value="">Filter by Product Category</option>
                   {formUtilites.categories?.map((category) => (
                     <option key={category._id} value={category._id}>
-                      {category.name}
+                      {category?.name}
                     </option>
                   ))}
                 </select>
@@ -553,8 +551,8 @@ function Orders() {
               </thead>
               {orders && orders.length > 0 ? (
                 <tbody>
-                  {orders?.map((order) => (
-                    <TableRow key={order?._id} order={order} />
+                  {orders.map((order) => (
+                    <TableRow key={order._id} order={order} />
                   ))}
                 </tbody>
               ) : (
