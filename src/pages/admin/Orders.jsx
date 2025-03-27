@@ -60,6 +60,7 @@ function Orders() {
         getOrders(queryString),
         getOrderStats(),
       ]);
+      console.log(statsRes,"res");
       setOrders(ordersRes.orders);
       setOrderStats(statsRes.stats);
       setErrorMessage("");
@@ -96,7 +97,7 @@ function Orders() {
         <div className="bg-white rounded-lg p-6 w-96 shadow-xl">
           <h3 className="text-lg font-semibold mb-4">Confirm Status Change</h3>
           <p className="text-gray-600 mb-6">
-            Are you sure you want to change the status to "{status}"?
+            Are you sure you want to change the status to ?
           </p>
           <div className="flex justify-end gap-4">
             <button
@@ -239,7 +240,7 @@ function Orders() {
               }}
             >
               <div className="py-1" role="menu">
-                {options?.map((status) => (
+                {orderStats?.map((status) => (
                   <button
                     key={status}
                     onClick={() => handleStatusClick(status)}
@@ -274,8 +275,9 @@ function Orders() {
   };
 
   const TableRow = ({ order }) => {
+    console.log(order,"order in row");
     const [paymentStatus, setPaymentStatus] = useState(
-      order.paymentStatus || "pending"
+      order?.paymentStatus || "pending"
     );
     const [orderStatus, setOrderStatus] = useState(order.status || "pending");
 
@@ -298,7 +300,7 @@ function Orders() {
 
     const handlePaymentStatusChange = async (newStatus) => {
       try {
-        const result = await updateOrderStatus(order._id, newStatus, "payment");
+        const result = await updateOrderStatus(order?._id, newStatus, "payment");
         if (result.success) {
           setPaymentStatus(newStatus);
           toast.success(result.message);
@@ -369,24 +371,24 @@ function Orders() {
       <tr className="bg-white border-b hover:bg-gray-50">
         <td className="px-6 py-4">
           <div className="max-h-32 overflow-y-auto">
-            {formatProducts(order.products)}
+            {formatProducts(order?.products)}
           </div>
         </td>
         <td className="px-6 py-4 whitespace-nowrap">
-          {formatDate(order.createdAt)}
+          {formatDate(order?.createdAt)}
         </td>
-        <td className="px-6 py-4">{order.user.phonenumber}</td>
-        <td className="px-6 py-4">{order.user.address || "N/A"}</td>
+        <td className="px-6 py-4">{order?.user?.phonenumber}</td>
+        <td className="px-6 py-4">{order?.user?.address || "N/A"}</td>
         <td className="px-6 py-4">
           <div className="space-y-1">
             {[
-              ...new Set(order.products?.map((p) => p.productId.category.name)),
+              ...new Set(order?.products?.map((p) => p?.productId?.category?.name)),
             ].join(", ")}
           </div>
         </td>
         <td className="px-6 py-4">
           <div className="font-medium text-gray-900">
-            ₹{order.totalAmount?.toLocaleString() || 0}
+            ₹{order?.totalAmount?.toLocaleString() || 0}
           </div>
         </td>
         <StatusDropdown
@@ -551,8 +553,8 @@ function Orders() {
               </thead>
               {orders && orders.length > 0 ? (
                 <tbody>
-                  {orders.map((order) => (
-                    <TableRow key={order._id} order={order} />
+                  {orders?.map((order) => (
+                    <TableRow key={order?._id} order={order} />
                   ))}
                 </tbody>
               ) : (
