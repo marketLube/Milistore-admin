@@ -101,7 +101,9 @@ const VariantCard = ({
       <div className="space-y-1">
         <h3 className="font-medium text-gray-900">{title}</h3>
         <p className="text-sm text-gray-600">
-          {attributes?.description || "No description"}
+          {attributes?.description.length > 30
+            ? attributes?.description.slice(0, 30) + "..."
+            : attributes?.description || "No description"}
         </p>
         <div className="flex justify-between items-center text-sm">
           <span className="text-gray-600">Price:</span>
