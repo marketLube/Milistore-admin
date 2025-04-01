@@ -84,7 +84,7 @@ function Addproduct() {
           variants: variants,
           sku: !hasVariants ? res.data.sku : "",
           description: !hasVariants ? res.data.description : "",
-          units: res.data.units,
+          // units: res.data.units,
           price: !hasVariants ? res.data.price : "",
           offerPrice: !hasVariants ? res.data.offerPrice : "",
           stock: !hasVariants ? res.data.stock : "",
@@ -157,16 +157,73 @@ function Addproduct() {
     }
   };
 
-  const handleRadioChange = (event) => {
+  // const handleRadioChange = (event) => {
+  //   const value = event.target.value;
+  //   setSelectedVariant(value);
+
+  //   // Reset product data structure based on variant selection
+  //   if (value === "noVariants") {
+  //     setProductData((prev) => ({
+  //       ...prev,
+  //       variants: [],
+  //     }));
+  //   }
+
+  //   // Clear all errors when switching variant types
+  //   setErrors({});
+  //   setVariantErrors({});
+  // };
+
+ const handleRadioChange = (event) => {
     const value = event.target.value;
     setSelectedVariant(value);
 
-    // Reset product data structure based on variant selection
     if (value === "noVariants") {
       setProductData((prev) => ({
         ...prev,
         variants: [],
       }));
+      setImages(productData.images);
+    } else if (value === "hasVariants") {
+      // Create first variant from existing product data
+
+      const firstVariant = {
+        sku: productData.sku || "",
+        attributes: {
+          title: "Default",
+          description: productData.description || "",
+        },
+        price: productData.price || "",
+        offerPrice: productData.offerPrice || "",
+        stock: productData.stock
+          ? productData.stock.toString().toLowerCase()
+          : "",
+        stockStatus: "inStock",
+        images: productData.images || [],
+      };
+
+      console.log(productData, "productData");
+      console.log(firstVariant, "firstVariant");
+      console.log(images, "images");
+
+      // Update product data with the new variant
+      setProductData((prev) => ({
+        ...prev,
+        variants: [firstVariant],
+        // Clear single product fields
+        sku: "",
+        description: "",
+        price: "",
+        offerPrice: "",
+        stock: "",
+        images: [],
+      }));
+
+      // Set the current variant and show form
+      setCurrentVariant(firstVariant);
+      setImages(firstVariant.images);
+      setSelectedVariantIndex(0);
+      setShowVariantForm(true);
     }
 
     // Clear all errors when switching variant types
@@ -255,10 +312,19 @@ function Addproduct() {
       toast.success("Variant added successfully");
     }
 
-    resetVariantForm();
-    setShowVariantForm(false);
+    // resetVariantForm();
+    // setShowVariantForm(false);
+    // setVariantErrors({});
+    // setSelectedVariantIndex(null);
+    if (productData.variants.length === 0) {
+      setSelectedVariantIndex(0);
+    } else {
+      resetVariantForm();
+      setShowVariantForm(false);
+      setSelectedVariantIndex(null);
+    }
+
     setVariantErrors({});
-    setSelectedVariantIndex(null);
   };
 
   const resetVariantForm = () => {
@@ -338,11 +404,14 @@ function Addproduct() {
     formData.append("brand", productData.brand);
     formData.append("category", productData.category);
     formData.append("label", productData.label);
-    formData.append("units", productData.units);
+    // formData.append("units", productData.units);
 
     if (selectedVariant === "hasVariants") {
       // For products with variants
       const formattedVariants = productData.variants.map((variant) => {
+        // Convert stock to number if it's a numeric string, otherwise use 0
+        const stockNumber = variant.stock ? parseInt(variant.stock, 10) : 0;
+
         const variantData = {
           sku: variant.sku,
           attributes: {
@@ -351,8 +420,8 @@ function Addproduct() {
           },
           price: variant.price,
           offerPrice: variant.offerPrice,
-          stock: variant.stock,
-          stockStatus: variant.stockStatus,
+          stock: stockNumber, // Use the converted number
+          stockStatus: variant.stockStatus.toLowerCase(), // Ensure correct enum case
         };
 
         if (variant._id) {
@@ -361,6 +430,7 @@ function Addproduct() {
 
         return variantData;
       });
+
 
       // Append each variant separately
       formattedVariants.forEach((variant, variantIndex) => {
@@ -504,11 +574,11 @@ function Addproduct() {
               </div>
 
               <div className="flex gap-2">
-                <UnitsSelect
+                {/* <UnitsSelect
                   handleChange={handleProductChange}
                   value={productData.units}
                   errors={errors}
-                />
+                /> */}
                 <LabelSelect
                   labels={formUtilites.labels}
                   handleChange={handleProductChange}
