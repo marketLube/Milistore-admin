@@ -101,7 +101,7 @@ const ReviewList = () => {
 
   // Update the filter function to only search by product name
   const filteredReviews = reviews.filter((review) =>
-    review.productId.name.toLowerCase().includes(searchQuery.toLowerCase())
+    review?.productId?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Calculate pagination
@@ -316,7 +316,7 @@ const ReviewList = () => {
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-sm font-semibold text-gray-900">
-                          {review.productId.name}
+                          {review?.productId?.name}
                         </p>
                       </td>
                       <td className="px-6 py-4">
@@ -333,12 +333,12 @@ const ReviewList = () => {
 
           <div className="flex items-center justify-between p-4 border-t">
             <div className="flex items-center gap-2">
-              {selected.length > 0 && (
+              {selected?.length > 0 && (
                 <button
                   onClick={() => setShowDeleteModal(true)}
                   className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                 >
-                  DELETE ({selected.length})
+                  DELETE ({selected?.length})
                 </button>
               )}
             </div>
@@ -384,7 +384,7 @@ const ReviewList = () => {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDeleteConfirm}
-        count={selected.length}
+        count={selected?.length}
       />
     </div>
   );

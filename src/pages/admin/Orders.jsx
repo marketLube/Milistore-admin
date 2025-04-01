@@ -230,11 +230,10 @@ function Orders() {
 
           {isOpen && !isStatusChangeDisabled && (
             <div
-              className="fixed rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
+              className="absolute rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
               style={{
                 zIndex: 50,
                 marginTop: "0.5rem",
-                transform: "translateY(-100%)",
                 minWidth: "150px",
               }}
             >
@@ -375,8 +374,12 @@ function Orders() {
         <td className="px-6 py-4 whitespace-nowrap">
           {formatDate(order.createdAt)}
         </td>
-        <td className="px-6 py-4">{order.user.phonenumber}</td>
-        {/* <td className="px-6 py-4">{order.user.address || "N/A"}</td> */}
+        <td className="px-6 py-4">{order?.user?.phonenumber}</td>
+        {/* <td className="px-6 py-4">{"1" || "N/A"}</td> */}
+        <td className="px-6 py-4">{order?.deliveryAddress?.pincode || "N/A"}</td>
+
+
+
         <td className="px-6 py-4">
           <div className="space-y-1">
             {[
@@ -460,7 +463,7 @@ function Orders() {
                   />
                   <Ordercards
                     data="Processing Orders"
-                    count={orderStats.statusCounts?.processing || 0}
+                    count={orderStats.statusCounts?.processed || 0}
                     color="#3B82F6"
                   />
                   <Ordercards

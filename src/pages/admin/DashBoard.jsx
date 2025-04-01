@@ -45,12 +45,13 @@ function DashBoard() {
   ];
   return (
     <div className="space-y-5 px-1 md:px-5">
-      <PageHeader content="Dash Board" />
+      <PageHeader content="DashBoard" />
 
       {/* quick analysis */}
-      <div className="flex flex-col lg:flex-row items-center justify-evenly  py-3 bg-white">
+      <div className="flex flex-col lg:flex-row items-center justify-evenly  py-3 bg-white md:p-4">
+
         <div>
-          <img src="/images/logo.png" alt="logo image" className="w-[20rem]" />
+        <img src="/images/logo.png" alt="logo image" className="w-[20rem] md:w-[22rem] md:p-4" />
         </div>
         <div>
           <p className="text-lg font-bold">September 2024</p>
@@ -70,7 +71,7 @@ function DashBoard() {
 
       {/* top products */}
       <div>
-        <p>Your top 4 products</p>
+        <p className="text-lg font-bold mb-2 ">Your top 4 products</p>
         <div className="flex flex-col lg:flex-row gap-2">
           {topProudcts &&
             topProudcts.map((product, index) => (
