@@ -174,7 +174,7 @@ function Addproduct() {
   //   setVariantErrors({});
   // };
 
- const handleRadioChange = (event) => {
+  const handleRadioChange = (event) => {
     const value = event.target.value;
     setSelectedVariant(value);
 
@@ -190,7 +190,7 @@ function Addproduct() {
       const firstVariant = {
         sku: productData.sku || "",
         attributes: {
-          title: "Default",
+          title: "",
           description: productData.description || "",
         },
         price: productData.price || "",
@@ -477,9 +477,7 @@ function Addproduct() {
             }
           );
         }
-
       });
-
     } else {
       // For products without variants
       formData.append("description", productData.description);
@@ -803,6 +801,7 @@ function Addproduct() {
                         type="text"
                         name="title"
                         value={currentVariant.attributes.title}
+                        placeholder="Please enter variant title"
                         onChange={handleVariantChange}
                         className={`bg-gray-50 border ${
                           variantErrors?.title

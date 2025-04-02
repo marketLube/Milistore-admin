@@ -39,3 +39,6 @@ export const updateProduct = async (productId, formData) => {
   );
   return response;
 };
+export const deleteProduct = async (productId) => {
+  return axiosInstance.patch(`product/soft-delete?productId=${productId}`);
+}

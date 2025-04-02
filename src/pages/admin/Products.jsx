@@ -32,6 +32,7 @@ function Products() {
     try {
       setIsLoading(true);
       const res = await listProducts(page);
+      console.log(res, "res1");
       setProducts(res?.data?.data?.products);
       setTotalPages(res?.data?.data?.totalPages);
     } catch (err) {
@@ -48,7 +49,6 @@ function Products() {
         fetchProducts(currentPage);
         return;
       }
-
       try {
         setIsLoading(true);
         const res = await searchProducts({
@@ -56,6 +56,7 @@ function Products() {
           page: currentPage,
           limit: 3,
         });
+        console.log(res, "res");
         setProducts(res?.data?.data?.products);
         setTotalPages(res?.data?.data?.totalPages);
       } catch (err) {
