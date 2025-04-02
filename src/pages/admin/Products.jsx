@@ -15,6 +15,8 @@ function Products() {
   const [totalPages, setTotalPages] = useState(5);
   const [isLoading, setIsLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState("");
+
+
   const navigate = useNavigate();
 
   // Fetch products when page changes or on initial load

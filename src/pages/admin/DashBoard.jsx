@@ -11,6 +11,8 @@ function DashBoard() {
   const [topProudcts, setTopProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  console.log(topProudcts);
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -45,7 +47,7 @@ function DashBoard() {
   ];
   return (
     <div className="space-y-5 px-1 md:px-5">
-      <PageHeader content="DashBoard" />
+      <PageHeader content="Dashboard" />
 
       {/* quick analysis */}
       <div className="flex flex-col lg:flex-row items-center justify-evenly  py-3 bg-white md:p-4">

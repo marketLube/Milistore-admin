@@ -378,6 +378,7 @@ function Addproduct() {
       selectedVariant,
       images
     );
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       if (validationErrors.variants) {
@@ -407,6 +408,7 @@ function Addproduct() {
     // formData.append("units", productData.units);
 
     if (selectedVariant === "hasVariants") {
+      console.log(productData.variants, "productData.variants");
       // For products with variants
       const formattedVariants = productData.variants.map((variant) => {
         // Convert stock to number if it's a numeric string, otherwise use 0
@@ -430,7 +432,6 @@ function Addproduct() {
 
         return variantData;
       });
-
 
       // Append each variant separately
       formattedVariants.forEach((variant, variantIndex) => {
@@ -467,18 +468,29 @@ function Addproduct() {
                   `variants[${variantIndex}][images][${imageIndex}]`,
                   image
                 );
+              } else {
+                formData.append(
+                  `variants[${variantIndex}][images][${imageIndex}]`,
+                  image
+                );
               }
             }
           );
         }
+
       });
+
     } else {
       // For products without variants
       formData.append("description", productData.description);
       formData.append("sku", productData.sku);
       formData.append("price", productData.price);
       formData.append("offerPrice", productData.offerPrice);
-      formData.append("stock", productData.stock);
+      // Convert stock to number if it's a numeric string, otherwise use 0
+      const stockNumber = productData.stock
+        ? parseInt(productData.stock, 10)
+        : 0;
+      formData.append("stock", stockNumber);
 
       // Handle product images with indices
       images.forEach((image, index) => {
