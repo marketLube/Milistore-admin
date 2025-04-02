@@ -26,7 +26,7 @@ function Products() {
     } else {
       fetchProducts(currentPage);
     }
-  }, [currentPage]); // Add currentPage as dependency
+  }, [currentPage, searchKeyword]); // Add currentPage as dependency
 
   const fetchProducts = async (page) => {
     try {

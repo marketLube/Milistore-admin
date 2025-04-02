@@ -88,6 +88,7 @@ function Addproduct() {
           price: !hasVariants ? res.data.price : "",
           offerPrice: !hasVariants ? res.data.offerPrice : "",
           stock: !hasVariants ? res.data.stock : "",
+          stockStatus: !hasVariants ? res.data.stockStatus : "",
           images: !hasVariants ? res.data.images : [],
         };
 
@@ -182,6 +183,7 @@ function Addproduct() {
       setProductData((prev) => ({
         ...prev,
         variants: [],
+        stockStatus: "instock",
       }));
       setImages(productData.images);
     } else if (value === "hasVariants") {
@@ -489,6 +491,7 @@ function Addproduct() {
         ? parseInt(productData.stock, 10)
         : 0;
       formData.append("stock", stockNumber);
+      formData.append("stockStatus", productData.stockStatus.toLowerCase());
 
       // Handle product images with indices
       images.forEach((image, index) => {
@@ -702,7 +705,7 @@ function Addproduct() {
                   </div>
                 </div>
                 <div className="flex gap-2 px-3">
-                  <div className="flex flex-col w-full">
+                  <div className="flex flex-col w-1/2">
                     <label className="block mb-2 text-sm font-medium text-gray-900">
                       Stock <span className="text-red-500">*</span>
                     </label>
@@ -716,6 +719,24 @@ function Addproduct() {
                       } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
                     />
                     <ErrorMessage error={errors?.stock} />
+                  </div>
+                  <div className="flex flex-col w-1/2">
+                    <label className="block mb-2 text-sm font-medium text-gray-900">
+                      Stock Status <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      name="stockStatus"
+                      className={`bg-gray-50 border ${
+                        errors?.stockStatus ? "border-red-500" : "border-gray-300"
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+                      onChange={handleProductChange}
+                      value={productData.stockStatus}
+                    >
+                      <option value="">Select Status</option>
+                      <option value="instock">In stock</option>
+                      <option value="outofstock">Out of stock</option>
+                    </select>
+                    <ErrorMessage error={errors?.stockStatus} />
                   </div>
                 </div>
                 <div className="px-3">
