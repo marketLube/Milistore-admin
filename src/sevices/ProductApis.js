@@ -1,6 +1,6 @@
 import { axiosInstance } from "../axios/axiosInstance";
 
-export const listProducts = (page = 1, limit = 8) => {
+export const listProducts = (page = 1, limit = 10) => {
   return axiosInstance.get(`product/get-products`, {
     params: {
       page,
@@ -39,6 +39,7 @@ export const updateProduct = async (productId, formData) => {
   );
   return response;
 };
+
 export const deleteProduct = async (productId) => {
   return axiosInstance.patch(`product/soft-delete?productId=${productId}`);
 }

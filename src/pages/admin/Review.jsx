@@ -264,10 +264,10 @@ const ReviewList = () => {
                       <td className="px-6 py-4">
                         <div>
                           <p className="font-semibold text-gray-900">
-                            {review.userId.username}
+                            {review?.userId?.username}
                           </p>
                           <p className="text-sm text-gray-500">
-                            {review.userId.email}
+                            {review?.userId?.email}
                           </p>
                         </div>
                       </td>
@@ -277,7 +277,7 @@ const ReviewList = () => {
                             <FaStar
                               key={i}
                               className={
-                                i < review.rating
+                                i < review?.rating
                                   ? "text-yellow-400"
                                   : "text-gray-300"
                               }
@@ -300,7 +300,7 @@ const ReviewList = () => {
                               }
                             }}
                           >
-                            {review.review}
+                            {review?.review}
                           </p>
                           {document.querySelector(
                             `[data-truncated="true"]`

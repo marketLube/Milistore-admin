@@ -4,7 +4,6 @@ import { listProducts, searchProducts } from "../../sevices/ProductApis";
 import LoadingSpinner from "../../components/spinner/LoadingSpinner";
 import { toast } from "react-toastify";
 import debounce from "lodash/debounce";
-
 import PageHeader from "../../components/Admin/PageHeader";
 import ProductTable from "../../components/Admin/Product/components/Table/ProductTable";
 import Pagination from "../../components/Admin/Product/components/Pagination/Pagination";
@@ -31,7 +30,7 @@ function Products() {
   const fetchProducts = async (page) => {
     try {
       setIsLoading(true);
-      const res = await listProducts(page);
+      const res = await listProducts(page, 10);
       console.log(res, "res1");
       setProducts(res?.data?.data?.products);
       setTotalPages(res?.data?.data?.totalPages);
@@ -54,7 +53,7 @@ function Products() {
         const res = await searchProducts({
           keyword,
           page: currentPage,
-          limit: 3,
+          limit: 10,
         });
         console.log(res, "res");
         setProducts(res?.data?.data?.products);
@@ -83,7 +82,7 @@ function Products() {
       const res = await searchProducts({
         keyword,
         page,
-        limit: 3,
+        limit: 10,
       });
       setProducts(res?.data?.data?.products);
       setTotalPages(res?.data?.data?.totalPages);
@@ -161,8 +160,8 @@ function Products() {
             )}
           </div>
 
-          {/* Pagination */}
-          {!isLoading && totalPages > 1 && (
+          {/* Pagination section - Updated condition */}
+          {!isLoading && products?.length > 0 && (
             <div className="sticky bottom-0 flex items-center justify-between p-4 bg-white border-t">
               <div>
                 <p className="text-sm text-gray-700">
