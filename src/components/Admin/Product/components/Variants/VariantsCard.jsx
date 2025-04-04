@@ -99,7 +99,7 @@ const VariantCard = ({
 
       {/* Variant Details */}
       <div className="space-y-1">
-        <h3 className="font-medium text-gray-900">{title}</h3>
+        <h3 className="font-medium text-gray-900">{title.length > 15 ? title.slice(0, 15) + "..." : title}</h3>
         <p className="text-sm text-gray-600">
           {attributes?.description.length > 30
             ? attributes?.description.slice(0, 30) + "..."
