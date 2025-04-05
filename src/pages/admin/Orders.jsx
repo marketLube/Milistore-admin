@@ -41,8 +41,10 @@ function Orders() {
       let queryParams = [];
 
       if (startDate && endDate) {
-        queryParams.push(`startDate=${startDate.toISOString()}`);
-        queryParams.push(`endDate=${endDate.toISOString()}`);
+        const formattedStartDate = new Date(startDate.setHours(0, 0, 0, 0)).toISOString();
+        const formattedEndDate = new Date(endDate.setHours(23, 59, 59, 999)).toISOString();
+        queryParams.push(`startDate=${formattedStartDate}`);
+        queryParams.push(`endDate=${formattedEndDate}`);
       }
 
       if (selectedCategory) {
