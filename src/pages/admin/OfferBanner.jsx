@@ -254,7 +254,7 @@ function OfferBanner() {
                 </label>
                 <div
                   onClick={handleImageClick}
-                  className={`relative w-full h-48 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-400 ${
+                  className={`relative w-full h-28 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-400 ${
                     errors.image ? 'border-red-500' : 'border-gray-300'
                   }`}
                 >
