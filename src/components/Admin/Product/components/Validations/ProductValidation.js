@@ -1,6 +1,6 @@
 export const validateProduct = (productData, selectedVariant, images) => {
   const errors = {};
-
+  console.log("productData", productData);
   // Common required fields
   if (!productData.name?.trim()) errors.name = "Product name is required";
   if (!productData.brand) errors.brand = "Brand is required";
@@ -33,6 +33,10 @@ export const validateProduct = (productData, selectedVariant, images) => {
     if (isNaN(productData.offerPrice))
       errors.offerPrice = "Offer price must be a number";
     if (isNaN(productData.stock)) errors.stock = "Stock must be a number";
+
+    if (!productData.stockStatus) {
+      errors.stockStatus = "Stock status is required";
+    }
 
     // Price logic
     if (Number(productData.offerPrice) >= Number(productData.price)) {

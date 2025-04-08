@@ -316,7 +316,7 @@ const ReviewList = () => {
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-sm font-semibold text-gray-900">
-                          {review?.productId?.name}
+                          {`${review?.productId?.name.slice(0, 20)}...`}
                         </p>
                       </td>
                       <td className="px-6 py-4">

@@ -184,9 +184,9 @@ function Customers() {
                   <th scope="col" className="px-6 py-3 bg-gray-50">
                     Joined Date
                   </th>
-                  <th scope="col" className="px-6 py-3 bg-gray-50">
+                  {/* <th scope="col" className="px-6 py-3 bg-gray-50">
                     Status
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -232,7 +232,7 @@ function Customers() {
                       <td className="px-6 py-4">
                         {new Date(user.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4">
+                      {/* <td className="px-6 py-4">
                         <div className="flex items-center">
                           <div
                             className={`h-2.5 w-2.5 rounded-full me-2 ${
@@ -241,7 +241,7 @@ function Customers() {
                           />
                           {user.isBlocked ? "Blocked" : "Active"}
                         </div>
-                      </td>
+                      </td> */}
                     </tr>
                   ))
                 )}

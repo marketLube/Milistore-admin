@@ -12,7 +12,6 @@ const ProductTableRow = ({ product }) => {
 
   const handleEdit = (id) => {
     navigate(`/admin/product/addproduct`, { state: { productId: id } });
-
   };
 
   const handleDelete = (id) => {
@@ -37,50 +36,38 @@ const ProductTableRow = ({ product }) => {
   };
 
   return (
-<>
-    <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
-      <td className="w-4 p-4">
-        <div className="flex items-center">
-          <input
-            id="checkbox-table-search-1"
-            type="checkbox"
-            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+    <>
+      <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
+        <th
+          scope="row"
+          className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+        >
+          {product?.name.split("").length > 30
+            ? product.name.slice(0, 30) + "..."
+            : product?.name}
+        </th>
+        <td className="px-6 py-4">{product?.brand?.name}</td>
+        <td className="px-6 py-4">{product?.stock}</td>
+        <td className="px-6 py-4">₹{product?.price}</td>
+        <td className="px-6 py-4">₹{product?.offerPrice}</td>
+        <td className="px-6 py-4">{product?.category?.name}</td>
+        <td className="px-6 py-4">
+          {new Date(product?.updatedAt).toLocaleDateString()}
+        </td>
+        <td className="px-6 py-4 flex gap-3">
+          <FaEdit
+            className="w-5 h-5 text-blue-600 cursor-pointer"
+            onClick={() => handleEdit(product?._id)}
           />
-          <label htmlFor="checkbox-table-search-1" className="sr-only">
-            checkbox
-          </label>
-        </div>
-      </td>
-      <th
-        scope="row"
-        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-      >
-        {product?.name.split("").length > 30
-          ? product.name.slice(0, 30) + "..."
-          : product?.name}
-      </th>
-      <td className="px-6 py-4">{product?.brand?.name}</td>
-      <td className="px-6 py-4">{product?.stock}</td>
-      <td className="px-6 py-4">₹{product?.price}</td>
-      <td className="px-6 py-4">₹{product?.offerPrice}</td>
-      <td className="px-6 py-4">{product?.category?.name}</td>
-      <td className="px-6 py-4">
-        {new Date(product?.updatedAt).toLocaleDateString()}
-      </td>
-      <td className="px-6 py-4 flex gap-3">
-        <FaEdit
-          className="w-5 h-5 text-blue-600 cursor-pointer"
-          onClick={() => handleEdit(product?._id)}
-          />
-        <button
-          onClick={() => handleDelete(product?._id)}
-          className="font-medium text-red-600 hover:underline"
+          <button
+            onClick={() => handleDelete(product?._id)}
+            className="font-medium text-red-600 hover:underline"
           >
-          <FaTrash size={18} />
-        </button>
-      </td>
-    </tr>
-    <ConfirmationModal
+            <FaTrash size={18} />
+          </button>
+        </td>
+      </tr>
+      <ConfirmationModal
         isOpen={showDeleteModal}
         onClose={handleCloseDeleteModal}
         onConfirm={handleConfirmDelete}
@@ -90,7 +77,7 @@ const ProductTableRow = ({ product }) => {
         confirmButtonText="Delete"
         confirmButtonColor="red"
       />
-     </>
+    </>
   );
 };
 

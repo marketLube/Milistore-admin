@@ -183,7 +183,7 @@ function Addproduct() {
       setProductData((prev) => ({
         ...prev,
         variants: [],
-        stockStatus: "instock",
+        // stockStatus: "instock",
       }));
       setImages(productData.images);
     } else if (value === "hasVariants") {
@@ -200,13 +200,9 @@ function Addproduct() {
         stock: productData.stock
           ? productData.stock.toString().toLowerCase()
           : "",
-        stockStatus: "inStock",
+        // stockStatus: "inStock",
         images: productData.images || [],
       };
-
-      console.log(productData, "productData");
-      console.log(firstVariant, "firstVariant");
-      console.log(images, "images");
 
       // Update product data with the new variant
       setProductData((prev) => ({
@@ -289,8 +285,13 @@ function Addproduct() {
       images: [...images],
     };
 
-    if (variantData.stockStatus === 'outofstock' && parseInt(variantData.stock) > 0) {
-      toast.error('Variant stock status cannot be out of stock when stock quantity is greater than 0');
+    if (
+      variantData.stockStatus === "outofstock" &&
+      parseInt(variantData.stock) > 0
+    ) {
+      toast.error(
+        "Variant stock status cannot be out of stock when stock quantity is greater than 0"
+      );
       return;
     }
 
@@ -415,7 +416,6 @@ function Addproduct() {
     // formData.append("units", productData.units);
 
     if (selectedVariant === "hasVariants") {
-      console.log(productData.variants, "productData.variants");
       // For products with variants
       const formattedVariants = productData.variants.map((variant) => {
         // Convert stock to number if it's a numeric string, otherwise use 0
@@ -732,7 +732,9 @@ function Addproduct() {
                     <select
                       name="stockStatus"
                       className={`bg-gray-50 border ${
-                        errors?.stockStatus ? "border-red-500" : "border-gray-300"
+                        errors?.stockStatus
+                          ? "border-red-500"
+                          : "border-gray-300"
                       } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
                       onChange={handleProductChange}
                       value={productData.stockStatus}

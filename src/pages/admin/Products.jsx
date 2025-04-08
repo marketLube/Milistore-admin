@@ -31,7 +31,6 @@ function Products() {
     try {
       setIsLoading(true);
       const res = await listProducts(page, 10);
-      console.log(res, "res1");
       setProducts(res?.data?.data?.products);
       setTotalPages(res?.data?.data?.totalPages);
     } catch (err) {
@@ -55,7 +54,6 @@ function Products() {
           page: currentPage,
           limit: 10,
         });
-        console.log(res, "res");
         setProducts(res?.data?.data?.products);
         setTotalPages(res?.data?.data?.totalPages);
       } catch (err) {

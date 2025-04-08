@@ -1,6 +1,6 @@
 export const validateVariant = (variant) => {
   const errors = {};
-
+  console.log("variant", variant);
   if (!variant.sku?.trim()) errors.sku = "SKU is required";
   if (!variant.attributes.title?.trim()) errors.title = "Title is required";
   if (!variant.attributes.description?.trim())

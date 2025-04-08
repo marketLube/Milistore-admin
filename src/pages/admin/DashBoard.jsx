@@ -11,7 +11,7 @@ function DashBoard() {
   const [topProudcts, setTopProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log(topProudcts);
+ 
 
   useEffect(() => {
     fetchDashboardData();

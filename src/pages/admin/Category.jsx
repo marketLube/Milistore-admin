@@ -111,6 +111,7 @@ function Category() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSearchQuery("");
 
     try {
       const formDataToSend = new FormData();
@@ -141,6 +142,7 @@ function Category() {
   };
 
   const handleEdit = (category) => {
+    setSearchQuery("");
     setEditingCategory(category);
     setFormData({
       name: category.name,
@@ -153,6 +155,7 @@ function Category() {
   };
 
   const resetForm = () => {
+    setSearchQuery("");
     setFormData({
       name: "",
       description: "",
@@ -204,6 +207,7 @@ function Category() {
       fetchCategories();
       setShowDeleteModal(false);
       setCategoryToDelete(null);
+      setSearchQuery("");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to delete category");
     } finally {
@@ -214,6 +218,7 @@ function Category() {
   const handleCloseDeleteModal = () => {
     setShowDeleteModal(false);
     setCategoryToDelete(null);
+    setSearchQuery("");
   };
 
   const renderCategoryRow = (category, level = 0, parentName = null) => {

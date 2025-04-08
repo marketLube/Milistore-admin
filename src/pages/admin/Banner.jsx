@@ -1,8 +1,13 @@
-import React, { useState, useRef,useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import PageHeader from "../../components/Admin/PageHeader";
 import { FaTrash, FaEdit, FaCamera } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { addBanner, deleteBanner, editBanner, getBanners } from "../../sevices/BannerApis.js";
+import {
+  addBanner,
+  deleteBanner,
+  editBanner,
+  getBanners,
+} from "../../sevices/BannerApis.js";
 function Banner() {
   const [showModal, setShowModal] = useState(false);
   const [editingBanner, setEditingBanner] = useState(null);
@@ -43,7 +48,6 @@ function Banner() {
     }
   };
   const handleSubmit = async (e) => {
-    console.log(formData);
     e.preventDefault();
     setIsSubmitting(true);
     try {
@@ -72,7 +76,6 @@ function Banner() {
   };
 
   const handleEditBanner = async (banner) => {
-     console.log(banner);
     setEditingBanner(banner);
     setFormData({
       title: banner.title,
@@ -98,12 +101,8 @@ function Banner() {
       ...prev,
       [name]: value,
     }));
-
-    console.log(formData);
-
   };
-  const handleCloseModal = () =>{
-console.log("close modal");
+  const handleCloseModal = () => {
     setShowModal(false);
     setEditingBanner(null);
     resetForm();
@@ -150,29 +149,35 @@ console.log("close modal");
           </thead>
           <tbody>
             {banners?.map((banner) => (
-            <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600" key={banner._id}>
-
-              <td className="p-4">
-                <img
-                  src={banner.image}
-                  className="w-16 md:w-32 max-w-full max-h-full"
-                  alt="Apple Watch"
-                />
-              </td>
-              <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
-                {banner.title}
-              </td>
-              <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
-                {banner.bannerFor}
-              </td>
-              <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white flex gap-2 ">
-                <FaTrash className="text-red-500 text-lg" onClick={() => handleDeleteBanner(banner._id)}/>
-                <FaEdit className="text-blue-500 text-lg" onClick={() => handleEditBanner(banner)}/>
-              </td>
-            </tr>
-
+              <tr
+                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
+                key={banner._id}
+              >
+                <td className="p-4">
+                  <img
+                    src={banner.image}
+                    className="w-16 md:w-32 max-w-full max-h-full"
+                    alt="Apple Watch"
+                  />
+                </td>
+                <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                  {banner.title}
+                </td>
+                <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                  {banner.bannerFor}
+                </td>
+                <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white flex gap-2 ">
+                  <FaTrash
+                    className="text-red-500 text-lg"
+                    onClick={() => handleDeleteBanner(banner._id)}
+                  />
+                  <FaEdit
+                    className="text-blue-500 text-lg"
+                    onClick={() => handleEditBanner(banner)}
+                  />
+                </td>
+              </tr>
             ))}
-
           </tbody>
         </table>
       </div>
@@ -262,7 +267,9 @@ console.log("close modal");
                   onChange={handleInputChange}
                   value={formData.bannerFor}
                 >
-                  <option value="" disabled >Select Banner For</option>
+                  <option value="" disabled>
+                    Select Banner For
+                  </option>
                   <option value="hero">Hero</option>
                   <option value="category">Category</option>
                   <option value="product">Product</option>

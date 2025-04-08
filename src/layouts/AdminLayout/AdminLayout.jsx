@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Logo from "../../components/Logo";
 import { adminLogout, checkAdmin } from "../../sevices/adminApis";
-import { toast } from "react-toastify";
 function AdminLayout() {
   const menuItems = [
     { name: "Dashboard", path: "/admin" },
@@ -21,6 +20,7 @@ function AdminLayout() {
 
   const logout = () => {
     adminLogout();
+    localStorage.removeItem("adminToken");
     navigate("login");
   };
   return (

@@ -57,7 +57,6 @@ function Brand() {
       try {
         setLoading(true);
         const response = await searchBrand(query);
-        console.log(response, "response");
         setBrands(response.brands);
       } catch (error) {
         toast.error("Failed to search brands");

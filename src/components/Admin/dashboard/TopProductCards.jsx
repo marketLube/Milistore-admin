@@ -1,13 +1,12 @@
 import React from "react";
 
 function TopProductCards({ item }) {
-console.log(item , "item");
   return (
     <div className="w-full bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex flex-col h-[400px]">
       <div className="h-72 p-5">
         <img
           className="w-full h-full rounded-t-lg object-contain"
-          src={Array.isArray(item?.image ) ?  item?.image[0] : item.image }
+          src={Array.isArray(item?.image) ? item?.image[0] : item.image}
           alt="product image"
         />
       </div>
