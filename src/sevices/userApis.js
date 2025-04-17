@@ -7,3 +7,7 @@ export const listUsers = (page, limit) => {
 export const searchUser = (search) => {
   return axiosInstance.get(`/user/search?search=${search}`);
 };
+
+export const listSubscribers = () => {
+  return axiosInstance.get("/user/subscribers");
+};

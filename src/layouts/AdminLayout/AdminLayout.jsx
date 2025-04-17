@@ -5,16 +5,17 @@ import { adminLogout, checkAdmin } from "../../sevices/adminApis";
 function AdminLayout() {
   const menuItems = [
     { name: "Dashboard", path: "/admin" },
-    { name: "Products", path: "product" },
     { name: "Orders", path: "order" },
+    { name: "Products", path: "product" },
     { name: "Categories", path: "category" },
     { name: "Brands", path: "brand" },
     { name: "Labels", path: "label" },
+    { name: "Banners", path: "banner" },
+    { name: "Offer Banners", path: "offer-banner" },
     { name: "Coupons", path: "coupon" },
     { name: "Reviews", path: "review" },
     { name: "Customers", path: "customer" },
-    { name: "Banners", path: "banner" },
-    { name: "Offer Banners", path: "offer-banner" },
+    { name: "Subscribers", path: "subscriber" },
   ];
   const navigate = useNavigate();
 

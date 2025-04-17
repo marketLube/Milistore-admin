@@ -15,6 +15,7 @@ import Brand from "../pages/admin/Brand";
 import Label from "../pages/admin/Label";
 import Banner from "../pages/admin/Banner";
 import OfferBanner from "../pages/admin/OfferBanner";
+import Subscribers from "../pages/admin/Subscribers";
 
 export const router = createBrowserRouter([
   {
@@ -81,6 +82,10 @@ export const router = createBrowserRouter([
       {
         path: "offer-banner",
         element: <OfferBanner />,
+      },
+      {
+        path: "subscriber",
+        element: <Subscribers />,
       },
     ],
   },
