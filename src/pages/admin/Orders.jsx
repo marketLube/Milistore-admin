@@ -11,6 +11,11 @@ import LoadingSpinner from "../../components/spinner/LoadingSpinner";
 import { useEffect, useState, useRef } from "react";
 import { TfiReload } from "react-icons/tfi";
 import { toast } from "react-toastify";
+import { FiSettings } from "react-icons/fi"; // Import settings icon
+import {
+  getShipmentCharges,
+  updateShipmentCharges,
+} from "../../sevices/utilitiesApis";
 
 function Orders() {
   const [formUtilites, setFormUtilites] = useState([]);
@@ -21,6 +26,9 @@ function Orders() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [deliveryCharge, setDeliveryCharge] = useState(0);
+  const [minAmountForFreeDelivery, setMinAmountForFreeDelivery] = useState(0);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const orderStatuses = [
     "pending",
@@ -32,7 +40,6 @@ function Orders() {
     "onrefound",
   ];
 
-
   const fetchData = async () => {
     try {
       setIsLoading(true);
@@ -41,8 +48,12 @@ function Orders() {
       let queryParams = [];
 
       if (startDate && endDate) {
-        const formattedStartDate = new Date(startDate.setHours(0, 0, 0, 0)).toISOString();
-        const formattedEndDate = new Date(endDate.setHours(23, 59, 59, 999)).toISOString();
+        const formattedStartDate = new Date(
+          startDate.setHours(0, 0, 0, 0)
+        ).toISOString();
+        const formattedEndDate = new Date(
+          endDate.setHours(23, 59, 59, 999)
+        ).toISOString();
         queryParams.push(`startDate=${formattedStartDate}`);
         queryParams.push(`endDate=${formattedEndDate}`);
       }
@@ -73,7 +84,16 @@ function Orders() {
     }
   };
 
-
+  const getUtilities = async () => {
+    try {
+      const res = await getShipmentCharges();
+      console.log(res);
+      setDeliveryCharge(res?.[0]?.deliveryCharges);
+      setMinAmountForFreeDelivery(res?.[0]?.minimumOrderAmount);
+    } catch (err) {
+      toast.error("Failed to fetch utilities");
+    }
+  };
   useEffect(() => {
     fetchData();
   }, [dateRange, selectedCategory, selectedStatus]);
@@ -88,6 +108,7 @@ function Orders() {
       }
     };
     fetchData();
+    getUtilities();
   }, []);
 
   const ConfirmationPopup = ({ isOpen, onClose, onConfirm, status }) => {
@@ -315,6 +336,8 @@ function Orders() {
     };
 
     const handleOrderStatusChange = async (newStatus) => {
+      console.log(newStatus, "newStatus");
+
       try {
         const result = await updateOrderStatus(order._id, newStatus, "order");
         if (result.success) {
@@ -378,14 +401,16 @@ function Orders() {
         </td>
         <td className="px-6 py-4">{order?.user?.phonenumber}</td>
         {/* <td className="px-6 py-4">{"1" || "N/A"}</td> */}
-        <td className="px-6 py-4">{order?.deliveryAddress?.pincode || "N/A"}</td>
-
-
+        <td className="px-6 py-4">
+          {order?.deliveryAddress?.pincode || "N/A"}
+        </td>
 
         <td className="px-6 py-4">
           <div className="space-y-1">
             {[
-              ...new Set(order?.products?.map((p) => p?.productId?.category?.name)),
+              ...new Set(
+                order?.products?.map((p) => p?.productId?.category?.name)
+              ),
             ].join(", ")}
           </div>
         </td>
@@ -410,6 +435,42 @@ function Orders() {
     );
   };
 
+  // Function to handle changes to delivery charge
+  const handleDeliveryChargeChange = (e) => {
+    setDeliveryCharge(e.target.value);
+  };
+
+  // Function to handle changes to minimum amount for free delivery
+  const handleMinAmountChange = (e) => {
+    setMinAmountForFreeDelivery(e.target.value);
+  };
+
+  const handlePopupOpen = () => {
+    setIsPopupOpen(true);
+  };
+
+  const handlePopupClose = () => {
+    setIsPopupOpen(false);
+  };
+
+  const handleEdit = async () => {
+    try {
+      const data = {
+        deliveryCharges: deliveryCharge,
+        minimumOrderAmount: minAmountForFreeDelivery,
+      };
+      const result = await updateShipmentCharges(data);
+      console.log(result);
+      if (result.success) {
+        toast.success("Shipment charges updated successfully");
+        handlePopupClose();
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to update shipment charges");
+    }
+  };
+
   return (
     <div>
       <PageHeader content={"Orders"} />
@@ -418,6 +479,56 @@ function Orders() {
         <LoadingSpinner color="primary" text="Loading orders..." fullScreen />
       ) : (
         <>
+          {isPopupOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 w-96 shadow-xl">
+                <h3 className="text-lg font-semibold mb-4">
+                  Edit Shipment Charges
+                </h3>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col">
+                    <label className="font-medium text-sm">
+                      Delivery Charge
+                    </label>
+                    <input
+                      type="number"
+                      value={deliveryCharge}
+                      onChange={(e) => setDeliveryCharge(e.target.value)}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <label className="font-medium text-sm">
+                      Min Amount for Free Delivery
+                    </label>
+                    <input
+                      type="number"
+                      value={minAmountForFreeDelivery}
+                      onChange={(e) =>
+                        setMinAmountForFreeDelivery(e.target.value)
+                      }
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-4 mt-6">
+                  <button
+                    onClick={handlePopupClose}
+                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleEdit}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    Edit
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-[3rem]">
             <div className="w-1/3 space-y-2">
               <p className="font-medium text-sm">Sales Period</p>
@@ -522,6 +633,17 @@ function Orders() {
                 </span>
               </button>
             )}
+          </div>
+
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-xl font-bold">Orders</h1>
+            <button
+              onClick={handlePopupOpen}
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+            >
+              <FiSettings className="w-5 h-5" />
+              <span>Handle Shipment Charges</span>
+            </button>
           </div>
 
           <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-5">
