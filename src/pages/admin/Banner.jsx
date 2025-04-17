@@ -8,22 +8,23 @@ import {
   editBanner,
   getBanners,
 } from "../../sevices/BannerApis.js";
+import { getAllCategories } from "../../sevices/categoryApis.js";
 function Banner() {
   const [showModal, setShowModal] = useState(false);
   const [editingBanner, setEditingBanner] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
     bannerFor: "",
     image: null,
+    category: "",
+    percentage: "",
   });
   const fileInputRef = useRef(null);
   const [banners, setBanners] = useState([]);
-
-  useEffect(() => {
-    fetchBanners();
-  }, []);
 
   const fetchBanners = async () => {
     try {
@@ -33,6 +34,25 @@ function Banner() {
       toast.error("Failed to fetch banners");
     }
   };
+  useEffect(() => {
+    fetchBanners();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllCategories();
+      setCategories(response.envelop.data);
+    } catch (error) {
+      toast.error("Failed to fetch categories");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const handleImageClick = () => {
     fileInputRef.current.click();
@@ -49,11 +69,22 @@ function Banner() {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(formData);
+
+    if (formData.image === null) {
+      toast.error("Please upload an image");
+      return;
+    }
     setIsSubmitting(true);
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("title", formData.title);
       formDataToSend.append("bannerFor", formData.bannerFor);
+
+      if (formData.bannerFor === "category") {
+        formDataToSend.append("category", formData.category);
+        formDataToSend.append("percentage", formData.percentage);
+      }
 
       if (formData.image) {
         formDataToSend.append("image", formData.image);
@@ -80,7 +111,9 @@ function Banner() {
     setFormData({
       title: banner.title,
       bannerFor: banner.bannerFor,
-      image: null,
+      // image: banner.image,
+      category: banner.category,
+      percentage: banner.percentage,
     });
     setImagePreview(banner.image);
     setShowModal(true);
@@ -275,6 +308,43 @@ function Banner() {
                   <option value="product">Product</option>
                 </select>
               </div>
+
+              {formData.bannerFor === "category" && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Select Category
+                  </label>
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="" disabled>
+                      Select Category
+                    </option>
+                    {categories.map((category) => (
+                      <option value={category._id}>{category.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {formData.bannerFor === "category" && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Category upto offer percentage
+                  </label>
+                  <input
+                    type="number"
+                    name="percentage"
+                    value={formData.percentage}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    max={100}
+                    min={0}
+                  />
+                </div>
+              )}
 
               <div className="flex justify-end gap-2">
                 <button

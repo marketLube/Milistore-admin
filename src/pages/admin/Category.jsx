@@ -42,10 +42,6 @@ function Category() {
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
   const fetchCategories = async () => {
     try {
       setLoading(true);
@@ -58,6 +54,9 @@ function Category() {
     }
   };
 
+  useEffect(() => {
+    fetchCategories();
+  }, []);
   const debouncedSearch = useCallback(
     debounce(async (query) => {
       if (!query.trim()) {
@@ -270,12 +269,12 @@ function Category() {
             >
               <FaEdit size={18} />
             </button>
-            <button
+            {/* <button
               onClick={() => handleDelete(category)}
               className="font-medium text-red-600 hover:underline"
             >
               <FaTrash size={18} />
-            </button>
+            </button> */}
           </td>
         </tr>
         {category.subcategories?.map((subcategory) =>
@@ -610,7 +609,7 @@ function Category() {
                   required
                 />
               </div>
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Parent Category (Optional)
                 </label>
@@ -627,7 +626,7 @@ function Category() {
                     </option>
                   ))}
                 </select>
-              </div>
+              </div> */}
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
@@ -677,7 +676,7 @@ function Category() {
         </div>
       )}
 
-      <ConfirmationModal
+      {/* <ConfirmationModal
         isOpen={showDeleteModal}
         onClose={handleCloseDeleteModal}
         onConfirm={handleConfirmDelete}
@@ -692,7 +691,7 @@ function Category() {
         isLoading={isDeleting}
         confirmButtonText="Delete"
         confirmButtonColor="red"
-      />
+      /> */}
     </div>
   );
 }

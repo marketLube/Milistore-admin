@@ -11,7 +11,7 @@ import LoadingSpinner from "../../components/spinner/LoadingSpinner";
 import { useEffect, useState, useRef } from "react";
 import { TfiReload } from "react-icons/tfi";
 import { toast } from "react-toastify";
-import { FiSettings } from "react-icons/fi"; // Import settings icon
+import { FiSettings } from "react-icons/fi";
 import {
   getShipmentCharges,
   updateShipmentCharges,
@@ -29,6 +29,10 @@ function Orders() {
   const [deliveryCharge, setDeliveryCharge] = useState(0);
   const [minAmountForFreeDelivery, setMinAmountForFreeDelivery] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [ordersPerPage] = useState(25);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   const orderStatuses = [
     "pending",
@@ -66,6 +70,9 @@ function Orders() {
         queryParams.push(`status=${selectedStatus.toLowerCase()}`);
       }
 
+      queryParams.push(`page=${currentPage}`);
+      queryParams.push(`limit=${ordersPerPage}`);
+
       const queryString =
         queryParams.length > 0 ? `?${queryParams.join("&")}` : "";
 
@@ -75,6 +82,8 @@ function Orders() {
       ]);
       setOrders(ordersRes.orders);
       setOrderStats(statsRes.stats);
+      setTotalOrders(ordersRes.totalOrders);
+      setTotalPages(ordersRes.totalPages);
       setErrorMessage("");
     } catch (err) {
       setOrders([]);
@@ -87,7 +96,6 @@ function Orders() {
   const getUtilities = async () => {
     try {
       const res = await getShipmentCharges();
-      console.log(res);
       setDeliveryCharge(res?.[0]?.deliveryCharges);
       setMinAmountForFreeDelivery(res?.[0]?.minimumOrderAmount);
     } catch (err) {
@@ -96,7 +104,12 @@ function Orders() {
   };
   useEffect(() => {
     fetchData();
+    setCurrentPage(1);
   }, [dateRange, selectedCategory, selectedStatus]);
+
+  useEffect(() => {
+    fetchData();
+  }, [currentPage]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -471,6 +484,30 @@ function Orders() {
     }
   };
 
+  // Pagination controls
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Generate page numbers
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return pageNumbers;
+  };
+
   return (
     <div>
       <PageHeader content={"Orders"} />
@@ -715,6 +752,38 @@ function Orders() {
                 </tbody>
               )}
             </table>
+          </div>
+
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+
+            {getPageNumbers().map((pageNumber) => (
+              <button
+                key={pageNumber}
+                onClick={() => handlePageChange(pageNumber)}
+                className={`px-3 py-1 rounded ${
+                  currentPage === pageNumber
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "border hover:bg-gray-50"
+                }`}
+              >
+                {pageNumber}
+              </button>
+            ))}
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
           </div>
         </>
       )}
