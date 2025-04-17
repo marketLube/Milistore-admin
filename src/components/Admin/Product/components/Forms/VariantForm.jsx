@@ -10,6 +10,7 @@ const VariantForm = ({ handleVariantChange, currentVariantData, errors }) => (
         <input
           type="text"
           name="price"
+          placeholder="Enter product price"
           className={`bg-gray-50 border ${
             errors?.price ? "border-red-500" : "border-gray-300"
           } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
@@ -25,6 +26,7 @@ const VariantForm = ({ handleVariantChange, currentVariantData, errors }) => (
         <input
           type="text"
           name="offerPrice"
+          placeholder="Enter offer price"
           className={`bg-gray-50 border ${
             errors?.offerPrice ? "border-red-500" : "border-gray-300"
           } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
@@ -42,6 +44,7 @@ const VariantForm = ({ handleVariantChange, currentVariantData, errors }) => (
         <input
           type="text"
           name="stock"
+          placeholder="Enter stock quantity"
           className={`bg-gray-50 border ${
             errors?.stock ? "border-red-500" : "border-gray-300"
           } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
