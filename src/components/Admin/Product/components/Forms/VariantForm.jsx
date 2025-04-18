@@ -84,7 +84,7 @@ const VariantForm = ({ handleVariantChange, currentVariantData, errors }) => (
         } focus:ring-blue-500 focus:border-blue-500`}
         placeholder="Write your thoughts here..."
         onChange={handleVariantChange}
-        value={currentVariantData.attributes.description}
+        value={currentVariantData?.attributes?.description}
       />
       <ErrorMessage error={errors?.description} />
     </div>

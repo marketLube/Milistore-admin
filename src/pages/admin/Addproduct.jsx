@@ -204,7 +204,7 @@ function Addproduct() {
           stock: productData.stock
             ? productData.stock.toString().toLowerCase()
             : "",
-          // stockStatus: "inStock",
+          stockStatus: productData.stockStatus || "",
           images: productData.images || [],
         };
 
@@ -224,7 +224,7 @@ function Addproduct() {
         // Set the current variant and show form
         setCurrentVariant(firstVariant);
         setImages(firstVariant.images);
-        setSelectedVariantIndex(null);
+        setSelectedVariantIndex(0);
       }
       setShowVariantForm(true);
     }
@@ -233,8 +233,6 @@ function Addproduct() {
     setErrors({});
     setVariantErrors({});
   };
-
-  console.log(selectedVariantIndex, "selectedVariantIndex>>>");
 
   const handleClick = (index) => {
     if (fileInputs.current[index]) {
@@ -279,16 +277,16 @@ function Addproduct() {
 
   const handleSaveVariant = () => {
     const variantData = {
-      _id: currentVariant._id,
-      sku: currentVariant.sku,
+      _id: currentVariant?._id || "",
+      sku: currentVariant?.sku || "",
       attributes: {
-        title: currentVariant.attributes.title,
-        description: currentVariant.attributes.description,
+        title: currentVariant?.attributes?.title || "",
+        description: currentVariant?.attributes?.description || "",
       },
-      price: currentVariant.price,
-      offerPrice: currentVariant.offerPrice,
-      stock: currentVariant.stock,
-      stockStatus: currentVariant.stockStatus,
+      price: currentVariant?.price || "",
+      offerPrice: currentVariant?.offerPrice || "",
+      stock: currentVariant?.stock || "",
+      stockStatus: currentVariant?.stockStatus || "",
       images: [...images],
     };
 
@@ -325,6 +323,8 @@ function Addproduct() {
         variants: [...prev.variants, variantData],
       }));
       toast.success("Variant added successfully");
+      setShowVariantForm(false);
+      setSelectedVariantIndex(null);
     }
 
     // resetVariantForm();
@@ -345,6 +345,7 @@ function Addproduct() {
   const resetVariantForm = () => {
     setCurrentVariant(initialVariantState);
     setImages([]);
+    setSelectedVariantIndex(null);
   };
 
   const handleDeleteVariant = (index) => {
@@ -627,7 +628,13 @@ function Addproduct() {
                       <h3 className="font-medium">Saved Variants</h3>
                       {!showVariantForm && !isPublishing && (
                         <button
-                          onClick={() => setShowVariantForm(true)}
+                          onClick={() => {
+                            setShowVariantForm(true);
+                            setSelectedVariantIndex(null);
+                            setCurrentVariant({});
+                            setImages([]);
+                            setVariantErrors({});
+                          }}
                           className="btn bg-blue-600 text-white p-2 px-4 rounded-3xl flex items-center gap-2"
                         >
                           <span>+ Add Variant</span>
@@ -798,7 +805,13 @@ function Addproduct() {
                     <div className="relative">
                       <div className="absolute top-0 right-3 z-10">
                         <button
-                          onClick={() => closeVariantForm()}
+                          onClick={() => {
+                            closeVariantForm();
+                            setSelectedVariantIndex(null);
+                            setCurrentVariant({});
+                            setImages([]);
+                            setVariantErrors({});
+                          }}
                           className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100"
                         >
                           <svg
@@ -846,7 +859,7 @@ function Addproduct() {
                       <input
                         type="text"
                         name="title"
-                        value={currentVariant.attributes.title}
+                        value={currentVariant?.attributes?.title}
                         placeholder="Please enter variant title"
                         onChange={handleVariantChange}
                         className={`bg-gray-50 border ${
@@ -882,7 +895,7 @@ function Addproduct() {
                       onClick={handleSaveVariant}
                       className="btn bg-blue-600 text-white p-1 px-3 rounded-3xl"
                     >
-                      {editMode && currentVariant._id
+                      {editMode && Object.keys(currentVariant).length > 0
                         ? "Update Variant"
                         : !editMode && selectedVariantIndex !== null
                         ? "Update Variant"
