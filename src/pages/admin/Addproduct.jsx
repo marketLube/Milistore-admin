@@ -192,38 +192,40 @@ function Addproduct() {
     } else if (value === "hasVariants") {
       // Create first variant from existing product data
 
-      const firstVariant = {
-        sku: productData.sku || "",
-        attributes: {
-          title: "",
-          description: productData.description || "",
-        },
-        price: productData.price || "",
-        offerPrice: productData.offerPrice || "",
-        stock: productData.stock
-          ? productData.stock.toString().toLowerCase()
-          : "",
-        // stockStatus: "inStock",
-        images: productData.images || [],
-      };
+      if (editMode) {
+        const firstVariant = {
+          sku: productData.sku || "",
+          attributes: {
+            title: "",
+            description: productData.description || "",
+          },
+          price: productData.price || "",
+          offerPrice: productData.offerPrice || "",
+          stock: productData.stock
+            ? productData.stock.toString().toLowerCase()
+            : "",
+          // stockStatus: "inStock",
+          images: productData.images || [],
+        };
 
-      // Update product data with the new variant
-      setProductData((prev) => ({
-        ...prev,
-        variants: [firstVariant],
-        // Clear single product fields
-        sku: "",
-        description: "",
-        price: "",
-        offerPrice: "",
-        stock: "",
-        images: [],
-      }));
+        // Update product data with the new variant
+        setProductData((prev) => ({
+          ...prev,
+          variants: [firstVariant],
+          // Clear single product fields
+          sku: "",
+          description: "",
+          price: "",
+          offerPrice: "",
+          stock: "",
+          images: [],
+        }));
 
-      // Set the current variant and show form
-      setCurrentVariant(firstVariant);
-      setImages(firstVariant.images);
-      setSelectedVariantIndex(null);
+        // Set the current variant and show form
+        setCurrentVariant(firstVariant);
+        setImages(firstVariant.images);
+        setSelectedVariantIndex(null);
+      }
       setShowVariantForm(true);
     }
 
@@ -373,6 +375,8 @@ function Addproduct() {
 
   const handlePublish = async () => {
     // Check if variants are required but none are added
+    console.log(productData, "productData>>>");
+    console.log(selectedVariant, "selectedVariant>>>");
     if (
       selectedVariant === "hasVariants" &&
       productData.variants.length === 0
