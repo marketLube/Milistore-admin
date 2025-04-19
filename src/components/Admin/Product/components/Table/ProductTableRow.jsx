@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import ConfirmationModal from "../../../ConfirmationModal";
 import { deleteProduct } from "../../../../../sevices/ProductApis";
 
-const ProductTableRow = ({ product }) => {
+const ProductTableRow = ({ product, isRefetching }) => {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -28,6 +28,7 @@ const ProductTableRow = ({ product }) => {
       await deleteProduct(product?._id);
       toast.success("Product deleted successfully");
       setShowDeleteModal(false);
+      isRefetching(true);
     } catch (error) {
       toast.error("Something went wrong");
     } finally {

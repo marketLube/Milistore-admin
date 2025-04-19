@@ -14,6 +14,7 @@ function Products() {
   const [totalPages, setTotalPages] = useState(5);
   const [isLoading, setIsLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [isRefetching, setIsRefetching] = useState(false);
 
   const navigate = useNavigate();
 
@@ -24,7 +25,7 @@ function Products() {
     } else {
       fetchProducts(currentPage);
     }
-  }, [currentPage, searchKeyword]); // Add currentPage as dependency
+  }, [currentPage, searchKeyword, isRefetching]); // Add currentPage as dependency
 
   const fetchProducts = async (page) => {
     try {
@@ -153,7 +154,10 @@ function Products() {
                 No products found
               </div>
             ) : (
-              <ProductTable products={products} />
+              <ProductTable
+                products={products}
+                isRefetching={setIsRefetching}
+              />
             )}
           </div>
 

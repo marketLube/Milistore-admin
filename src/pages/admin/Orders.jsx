@@ -226,7 +226,7 @@ function Orders() {
     };
 
     return (
-      <td className="px-6 py-4">
+      <td className="px-6 py-4 relative">
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => !isStatusChangeDisabled && setIsOpen(!isOpen)}
@@ -385,7 +385,12 @@ function Orders() {
               className="w-10 h-10 object-cover rounded mr-2"
             />
             <div>
-              <p className="font-medium">{product?.productId?.name}</p>
+              <p
+                className="font-medium cursor-pointer"
+                title={product?.productId?.name}
+              >
+                {product?.productId?.name?.slice(0, 20) + "..."}
+              </p>
               <p className="text-xs text-gray-500">
                 Qty: {product?.quantity} × ₹{product?.price}
               </p>

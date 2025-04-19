@@ -112,6 +112,16 @@ function Category() {
     setIsSubmitting(true);
     setSearchQuery("");
 
+    if (
+      formData.name === "" ||
+      formData.description === "" ||
+      formData.image === null
+    ) {
+      toast.error("All fields are required");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("name", formData.name);
