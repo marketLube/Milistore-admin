@@ -286,7 +286,6 @@ function Banner() {
                   value={formData.title}
                   onChange={handleInputChange}
                   className="w-full p-2 border border-gray-300 rounded-md"
-                  required
                 />
               </div>
               <div className="mb-4">
