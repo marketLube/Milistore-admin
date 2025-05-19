@@ -111,7 +111,7 @@ function Category() {
     e.preventDefault();
     setIsSubmitting(true);
     setSearchQuery("");
-
+    
     if (
       formData.name === "" ||
       formData.description === "" ||
@@ -157,7 +157,7 @@ function Category() {
       name: category.name,
       description: category.description,
       parent: category.parent?._id || "",
-      image: null,
+      image: category?.image || null,
     });
     setImagePreview(category.image);
     setShowModal(true);
