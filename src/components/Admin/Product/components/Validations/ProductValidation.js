@@ -1,6 +1,5 @@
 export const validateProduct = (productData, selectedVariant, images) => {
   const errors = {};
-  console.log("productData", productData);
   // Common required fields
   if (!productData.name?.trim()) errors.name = "Product name is required";
   if (!productData.brand) errors.brand = "Brand is required";

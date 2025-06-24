@@ -69,7 +69,6 @@ function Banner() {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
 
     if (formData.image === null) {
       toast.error("Please upload an image");

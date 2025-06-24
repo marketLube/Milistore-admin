@@ -349,7 +349,6 @@ function Orders() {
     };
 
     const handleOrderStatusChange = async (newStatus) => {
-      console.log(newStatus, "newStatus");
 
       try {
         const result = await updateOrderStatus(order._id, newStatus, "order");
@@ -478,7 +477,6 @@ function Orders() {
         minimumOrderAmount: minAmountForFreeDelivery,
       };
       const result = await updateShipmentCharges(data);
-      console.log(result);
       if (result.success) {
         toast.success("Shipment charges updated successfully");
         handlePopupClose();

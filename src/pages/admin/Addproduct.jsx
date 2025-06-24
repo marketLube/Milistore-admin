@@ -50,7 +50,6 @@ function Addproduct() {
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(null);
   const [isLoadingData, setIsLoadingData] = useState(false);
 
-  console.log(selectedVariantIndex, "selectedVariantIndex");
 
   const navigate = useNavigate();
 
@@ -96,7 +95,6 @@ function Addproduct() {
 
         setProductData(productData);
       } catch (err) {
-        console.log(err, "err");
         toast.error("Failed to fetch product");
       } finally {
         setIsLoadingData(false);
@@ -375,9 +373,6 @@ function Addproduct() {
   };
 
   const handlePublish = async () => {
-    // Check if variants are required but none are added
-    console.log(productData, "productData>>>");
-    console.log(selectedVariant, "selectedVariant>>>");
     if (
       selectedVariant === "hasVariants" &&
       productData.variants.length === 0
