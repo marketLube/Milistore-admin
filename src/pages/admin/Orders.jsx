@@ -388,7 +388,9 @@ function Orders() {
                 className="font-medium cursor-pointer"
                 title={product?.productId?.name}
               >
-                {product?.productId?.name?.slice(0, 20) + "..."}
+                {product?.productId?.name && product?.productId?.name.length > 30 
+                  ? `${product?.productId?.name.substring(0, 30)}...` 
+                  : product?.productId?.name}
               </p>
               <p className="text-xs text-gray-500">
                 Qty: {product?.quantity} × ₹{product?.price}
@@ -419,7 +421,54 @@ function Orders() {
         <td className="px-6 py-4">{order?.user?.phonenumber}</td>
         {/* <td className="px-6 py-4">{"1" || "N/A"}</td> */}
         <td className="px-6 py-4">
-          {order?.deliveryAddress?.pincode || "N/A"}
+          <div className="text-sm space-y-1 max-w-xs">
+            {order?.deliveryAddress ? (
+              <>
+                <div 
+                  className="font-medium text-gray-900 truncate"
+                  title={order.deliveryAddress.fullName}
+                >
+                  {order.deliveryAddress.fullName && order.deliveryAddress.fullName.length > 30 
+                    ? `${order.deliveryAddress.fullName.substring(0, 30)}...` 
+                    : order.deliveryAddress.fullName}
+                </div>
+                <div 
+                  className="text-gray-600 truncate"
+                  title={order.deliveryAddress.building}
+                >
+                  {order.deliveryAddress.building && order.deliveryAddress.building.length > 30 
+                    ? `${order.deliveryAddress.building.substring(0, 30)}...` 
+                    : order.deliveryAddress.building}
+                </div>
+                <div 
+                  className="text-gray-600 truncate"
+                  title={order.deliveryAddress.street}
+                >
+                  {order.deliveryAddress.street && order.deliveryAddress.street.length > 30 
+                    ? `${order.deliveryAddress.street.substring(0, 30)}...` 
+                    : order.deliveryAddress.street}
+                </div>
+                {order.deliveryAddress.landmark && (
+                  <div 
+                    className="text-gray-600 truncate"
+                    title={`Near: ${order.deliveryAddress.landmark}`}
+                  >
+                    Near: {order.deliveryAddress.landmark.length > 25 
+                      ? `${order.deliveryAddress.landmark.substring(0, 25)}...` 
+                      : order.deliveryAddress.landmark}
+                  </div>
+                )}
+                <div className="text-gray-600">
+                  {order.deliveryAddress.city}, {order.deliveryAddress.state}
+                </div>
+                <div className="font-medium text-gray-900">
+                  {order.deliveryAddress.pincode}
+                </div>
+              </>
+            ) : (
+              "N/A"
+            )}
+          </div>
         </td>
 
         <td className="px-6 py-4">
@@ -428,7 +477,17 @@ function Orders() {
               ...new Set(
                 order?.products?.map((p) => p?.productId?.category?.name)
               ),
-            ].join(", ")}
+            ].map((categoryName, index) => (
+              <div 
+                key={index} 
+                className="text-sm text-gray-600 truncate"
+                title={categoryName}
+              >
+                {categoryName && categoryName.length > 30 
+                  ? `${categoryName.substring(0, 30)}...` 
+                  : categoryName}
+              </div>
+            ))}
           </div>
         </td>
         <td className="px-6 py-4">
