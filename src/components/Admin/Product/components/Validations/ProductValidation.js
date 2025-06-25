@@ -23,7 +23,7 @@ export const validateProduct = (productData, selectedVariant, images) => {
     if (!productData.sku?.trim()) errors.sku = "SKU is required";
     if (!productData.price) errors.price = "Price is required";
     if (!productData.offerPrice) errors.offerPrice = "Offer price is required";
-    if (!productData.stock) errors.stock = "Stock is required";
+    if (productData.stock != 0 && !productData.stock) errors.stock = "Stock is required";
     if (!productData.description?.trim())
       errors.description = "Description is required";
 
