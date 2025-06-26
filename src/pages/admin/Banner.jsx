@@ -244,6 +244,7 @@ function Banner() {
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Banner Image
+                  <span className="text-xs text-gray-500 ml-2">(Required ratio: 4:3 )</span>
                 </label>
                 <div
                   onClick={handleImageClick}
