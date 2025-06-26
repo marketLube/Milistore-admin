@@ -40,8 +40,6 @@ function Orders() {
     "shipped",
     "delivered",
     "cancelled",
-    "refunded",
-    "onrefound",
   ];
 
   const fetchData = async () => {
@@ -318,8 +316,8 @@ function Orders() {
       "pending",
       "paid",
       "failed",
-      "refunded",
-      "onrefund",
+        // "refunded",
+        // "onrefund",
     ];
     const orderOptions = [
       "pending",
@@ -327,8 +325,8 @@ function Orders() {
       "shipped",
       "delivered",
       "cancelled",
-      "refunded",
-      "onrefund",
+      // "refunded",
+      // "onrefund",
     ];
 
     const handlePaymentStatusChange = async (newStatus) => {
