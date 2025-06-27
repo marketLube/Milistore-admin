@@ -71,14 +71,10 @@ export const router = createBrowserRouter([
         path: "review",
         element: <Review />,
       },
-      {
-        path: "customer",
-        element: <Customers />,
-      },
-      {
-        path: "banner",
-        element: <Banner />,
-      },
+      // {
+      //   path: "banner",
+      //   element: <Banner />,
+      // },
       {
         path: "offer-banner",
         element: <OfferBanner />,

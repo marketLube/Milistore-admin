@@ -40,11 +40,6 @@ function DashBoard() {
     );
   }
 
-  const AnalysisData = [
-    { data: "New Orders", color: "#00BA9D", count: "11" },
-    { data: "Total Deliveries", color: "#FF5470", count: "5289" },
-    { data: "Total Revenue", color: "#035ECF", count: "₹1,52,310" },
-  ];
   return (
     <div className="space-y-5 px-1 md:px-5">
       <PageHeader content="Dashboard" />
@@ -56,7 +51,7 @@ function DashBoard() {
         <img src="/images/logo.png" alt="logo image" className="w-[20rem] md:w-[22rem] md:p-4" />
         </div>
         <div>
-          <p className="text-lg font-bold">September 2024</p>
+          <p className="text-lg font-bold">{new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}</p>
           <div className="flex-col flex lg:flex-row items-center  justify-center gap-9 w-full mt-3">
             {cardsData &&
               cardsData.map((card, index) => (
