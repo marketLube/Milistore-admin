@@ -304,7 +304,7 @@ function Banner() {
                   </option>
                   <option value="hero">Hero</option>
                   <option value="category">Category</option>
-                  <option value="product">Product</option>
+                  {/* <option value="product">Product</option> */}
                 </select>
               </div>
 
