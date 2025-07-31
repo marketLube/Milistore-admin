@@ -36,7 +36,10 @@ import LoadingSpinner from "../../components/spinner/LoadingSpinner";
 
 function Addproduct() {
   // State Management
-  const [productData, setProductData] = useState(initialProductState);
+  const [productData, setProductData] = useState({
+    ...initialProductState,
+    priorityNumber: 10,
+  });
   const [currentVariant, setCurrentVariant] = useState(initialVariantState);
   const [selectedVariant, setSelectedVariant] = useState("noVariants");
   const [images, setImages] = useState([]);
@@ -49,7 +52,6 @@ function Addproduct() {
   const [editMode, setEditMode] = useState(false);
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(null);
   const [isLoadingData, setIsLoadingData] = useState(false);
-
 
   const navigate = useNavigate();
 
@@ -82,6 +84,7 @@ function Addproduct() {
           brand: res?.data?.brand?._id,
           category: res?.data?.category?._id,
           label: res?.data?.label?._id,
+          priorityNumber: res?.data?.priorityNumber || 10,
           variants: variants,
           sku: !hasVariants ? res?.data?.sku : "",
           description: !hasVariants ? res?.data?.description : "",
@@ -418,6 +421,7 @@ function Addproduct() {
     formData.append("brand", productData.brand);
     formData.append("category", productData.category);
     formData.append("label", productData.label);
+    formData.append("priorityNumber", productData.priorityNumber);
     // formData.append("units", productData.units);
 
     if (selectedVariant === "hasVariants") {
@@ -597,17 +601,31 @@ function Addproduct() {
               </div>
 
               <div className="flex gap-2">
-                {/* <UnitsSelect
-                  handleChange={handleProductChange}
-                  value={productData.units}
-                  errors={errors}
-                /> */}
                 <LabelSelect
                   labels={formUtilites.labels}
                   handleChange={handleProductChange}
                   value={productData.label}
                   errors={errors}
                 />
+                <div className="flex flex-col w-1/2">
+                  <label className="block mb-2 text-sm font-medium text-gray-900">
+                    Priority Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    onWheel={(e) => e.target.blur()}
+                    type="number"
+                    name="priorityNumber"
+                    min="1"
+                    max="10"
+                    value={productData.priorityNumber}
+                    onChange={handleProductChange}
+                    placeholder="Enter priority number (1-10)"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    1 will be top priority
+                  </p>
+                </div>
               </div>
 
               <VariantRadioButtons
